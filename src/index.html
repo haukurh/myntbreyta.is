@@ -93,48 +93,25 @@
         byCountry: {},
     };
 
-    const rates = xmlDoc.getElementsByTagName('Rate');
-
     const popularList = ['AUD', 'USD', 'EUR', 'THB'];
 
-    for (let i = 0; i < rates.length; i++) {
-        const rate = {};
-        rates[i].childNodes.forEach((node) => {
-            let value;
-            switch (node.nodeName) {
-                case 'RateDate':
-                    const [day, month, year] = node.textContent.split('.', 3);
-                    const date = new Date();
-                    date.setUTCDate(Number.parseInt(day));
-                    date.setUTCMonth(Number.parseInt(month));
-                    date.setUTCFullYear(Number.parseInt(year));
-                    date.setUTCHours(0);
-                    date.setUTCMinutes(0);
-                    date.setUTCSeconds(0);
-                    value = date;
-                    break;
-                case 'GroupNo':
-                case 'CurrencyNum':
-                    value = Number.parseInt(node.textContent);
-                    break;
-                case 'CurrencyBuyRate':
-                case 'CurrencyRate':
-                case 'CurrencySellRate':
-                    value = Number.parseFloat(node.textContent);
-                    break
-                default:
-                    value = node.textContent;
-            }
-            rate[node.nodeName] = value;
-        });
-        if (popularList.includes(rate.CurrencyCode)) {
-            currencies.popular[rate.CurrencyCode] = rate;
-        }
-        if (rate.CountryCode) {
-            currencies.byCountry[rate.CountryCode] = rate;
-        }
-        currencies.byCurrency[rate.CurrencyCode] = rate;
-    }
+    fetch('/currency-rates.json')
+        .then((response) => response.text())
+        .then((text) => JSON.parse(text))
+        .then((data) => {
+            currencies.popular = {};
+            currencies.byCurrency = {};
+            currencies.byCountry = {};
+            data.rates.forEach((rate) => {
+                if (popularList.includes(rate.CurrencyCode)) {
+                    currencies.popular[rate.CurrencyCode] = rate;
+                }
+                if (rate.CountryCode) {
+                    currencies.byCountry[rate.CountryCode] = rate;
+                }
+                currencies.byCurrency[rate.CurrencyCode] = rate;
+            });
+        }).then(() => updateSelector());
 
     const selector = document.getElementById('currency');
     const domestic = document.getElementById('domestic');
@@ -185,72 +162,73 @@
     };
 
 
-    selector.innerHTML = '';
-    let selected = getSelected();
-    let hasSelected = false;
-    const popularGroup = document.createElement('optgroup');
-    popularGroup.label = 'Popular';
-    Object.values(currencies.popular).forEach((currency, index) => {
-        const option = document.createElement('option');
-        option.value = currency.CurrencyCode;
-        option.innerText = currency.CurrencyCode;
-        if ((!hasSelected && selected && selected.CurrencyCode === currency.CurrencyCode) || (!hasSelected && !selected && index === 0)) {
-            setSelected(currency.CurrencyCode);
-            option.selected = true;
-            hasSelected = true;
-        }
-        popularGroup.appendChild(option);
-    });
-    selector.appendChild(popularGroup);
-    const byCurrencyGroup = document.createElement('optgroup');
-    byCurrencyGroup.label = 'By currency';
-    Object.values(currencies.byCurrency).sort((a, b) => {
-        if (a.CurrencyCode < b.CurrencyCode) {
-            return -1;
-        }
-        if (a.CurrencyCode > b.CurrencyCode) {
-            return 1;
-        }
-        return 0;
-    }).forEach((currency, index) => {
-        const option = document.createElement('option');
-        option.value = currency.CurrencyCode;
-        // option.innerText = `${currency.CurrencyCode}: ${currency.CurrencyDescription}`;
-        option.innerText = currency.CurrencyCode;
-        if (!hasSelected && selected && selected.CurrencyCode === currency.CurrencyCode) {
-            setSelected(currency.CurrencyCode);
-            option.selected = true;
-            hasSelected = true;
-        }
-        byCurrencyGroup.appendChild(option);
-    });
-    selector.appendChild(byCurrencyGroup);
-    const byCountryGroup = document.createElement('optgroup');
-    byCountryGroup.label = 'By country';
-    Object.values(currencies.byCountry).sort((a, b) => {
-        if (a.CountryEnglish < b.CountryEnglish) {
-            return -1;
-        }
-        if (a.CountryEnglish > b.CountryEnglish) {
-            return 1;
-        }
-        return 0;
-    }).forEach((currency, index) => {
-        const option = document.createElement('option');
-        option.value = currency.CurrencyCode;
-        // option.innerText = `${currency.CurrencyCode}: ${currency.CurrencyDescription}`;
-        option.innerText = currency.CountryEnglish;
-        if (!hasSelected && selected && selected.CurrencyCode === currency.CurrencyCode) {
-            setSelected(currency.CurrencyCode);
-            option.selected = true;
-            hasSelected = true;
-        }
-        byCountryGroup.appendChild(option);
-    });
-    selector.appendChild(byCountryGroup);
+    const updateSelector = () => {
+        selector.innerHTML = '';
+        let selected = getSelected();
+        let hasSelected = false;
+        const popularGroup = document.createElement('optgroup');
+        popularGroup.label = 'Popular';
+        Object.values(currencies.popular).forEach((currency, index) => {
+            const option = document.createElement('option');
+            option.value = currency.CurrencyCode;
+            option.innerText = currency.CurrencyCode;
+            if ((!hasSelected && selected && selected.CurrencyCode === currency.CurrencyCode) || (!hasSelected && !selected && index === 0)) {
+                setSelected(currency.CurrencyCode);
+                option.selected = true;
+                hasSelected = true;
+            }
+            popularGroup.appendChild(option);
+        });
+        selector.appendChild(popularGroup);
+        const byCurrencyGroup = document.createElement('optgroup');
+        byCurrencyGroup.label = 'By currency';
+        Object.values(currencies.byCurrency).sort((a, b) => {
+            if (a.CurrencyCode < b.CurrencyCode) {
+                return -1;
+            }
+            if (a.CurrencyCode > b.CurrencyCode) {
+                return 1;
+            }
+            return 0;
+        }).forEach((currency, index) => {
+            const option = document.createElement('option');
+            option.value = currency.CurrencyCode;
+            // option.innerText = `${currency.CurrencyCode}: ${currency.CurrencyDescription}`;
+            option.innerText = currency.CurrencyCode;
+            if (!hasSelected && selected && selected.CurrencyCode === currency.CurrencyCode) {
+                setSelected(currency.CurrencyCode);
+                option.selected = true;
+                hasSelected = true;
+            }
+            byCurrencyGroup.appendChild(option);
+        });
+        selector.appendChild(byCurrencyGroup);
+        const byCountryGroup = document.createElement('optgroup');
+        byCountryGroup.label = 'By country';
+        Object.values(currencies.byCountry).sort((a, b) => {
+            if (a.CountryEnglish < b.CountryEnglish) {
+                return -1;
+            }
+            if (a.CountryEnglish > b.CountryEnglish) {
+                return 1;
+            }
+            return 0;
+        }).forEach((currency, index) => {
+            const option = document.createElement('option');
+            option.value = currency.CurrencyCode;
+            // option.innerText = `${currency.CurrencyCode}: ${currency.CurrencyDescription}`;
+            option.innerText = currency.CountryEnglish;
+            if (!hasSelected && selected && selected.CurrencyCode === currency.CurrencyCode) {
+                setSelected(currency.CurrencyCode);
+                option.selected = true;
+                hasSelected = true;
+            }
+            byCountryGroup.appendChild(option);
+        });
+        selector.appendChild(byCountryGroup);
+    }
 
     selector.addEventListener('change', (e) => setSelected(e.target.value));
-
     domestic.addEventListener('change', updateForeign);
     domestic.addEventListener('input', updateForeign);
     foreign.addEventListener('change', () => {
