@@ -48,5 +48,4 @@ jobs:
           args: --size-only --cache-control="public,max-age=2592000"
 
       - name: Run CloudFront invalidation
-        if: steps.cloudfront.outputs.quantity != 0
         run: aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CLOUDFRONT_DIST }} --paths "/*"
