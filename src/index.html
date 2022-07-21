@@ -90,24 +90,6 @@
 
     const popularList = ['AUD', 'USD', 'EUR', 'THB'];
 
-    fetch('/currency-rates.json')
-        .then((response) => response.text())
-        .then((text) => JSON.parse(text))
-        .then((data) => {
-            currencies.popular = {};
-            currencies.byCurrency = {};
-            currencies.byCountry = {};
-            data.rates.forEach((rate) => {
-                if (popularList.includes(rate.CurrencyCode)) {
-                    currencies.popular[rate.CurrencyCode] = rate;
-                }
-                if (rate.CountryCode) {
-                    currencies.byCountry[rate.CountryCode] = rate;
-                }
-                currencies.byCurrency[rate.CurrencyCode] = rate;
-            });
-        }).then(() => updateSelector());
-
     const selector = document.getElementById('currency');
     const domestic = document.getElementById('domestic');
     const foreign = document.getElementById('foreign');
@@ -244,20 +226,29 @@
     foreign.addEventListener('input', updateDomestic);
     foreign.addEventListener('focus', moveCursorToEnd);
 
-    //console.log(currencies);
-
     const updateCurrencies = () => {
-        fetch(xmlEndpoint)
-            .then((r) => {
-                r.text().then((text) => {
-                    console.log(text);
-                    document.getElementById('output').innerText = text
-                    window.localStorage.setItem('xml', text);
+        fetch('/currency-rates.json')
+            .then((response) => response.text())
+            .then((text) => JSON.parse(text))
+            .then((data) => {
+                currencies.popular = {};
+                currencies.byCurrency = {};
+                currencies.byCountry = {};
+                data.rates.forEach((rate) => {
+                    if (popularList.includes(rate.CurrencyCode)) {
+                        currencies.popular[rate.CurrencyCode] = rate;
+                    }
+                    if (rate.CountryCode) {
+                        currencies.byCountry[rate.CountryCode] = rate;
+                    }
+                    currencies.byCurrency[rate.CurrencyCode] = rate;
                 });
             })
-            .catch()
-            .finally();
+            .then(() => updateSelector())
+            .catch((error) => console.error('Unable to fetch currency data', { error }));
     };
+
+    updateCurrencies();
 </script>
 
 </body>
