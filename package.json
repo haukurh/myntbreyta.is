@@ -1,0 +1,22 @@
+{
+  "name": "currency.haukurh.dev",
+  "version": "0.0.1",
+  "description": "Online tool for currency conversion",
+  "main": "index.js",
+  "repository": "git@github.com:haukurh/currency.haukurh.dev.git",
+  "author": "Haukur Hlöðversson <haukur@haukurh.is>",
+  "license": "MIT",
+  "scripts": {
+    "start": "gulp",
+    "build": "gulp build"
+  },
+  "dependencies": {
+    "csso": "^5.0.3",
+    "del": "^6.1.1",
+    "gulp": "^4.0.2",
+    "gulp-rename": "^2.0.0",
+    "html-minifier": "^4.0.0",
+    "through2": "^4.0.2",
+    "uglify-js": "^3.15.5"
+  }
+}

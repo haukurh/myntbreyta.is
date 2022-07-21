@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Gengi</title>
+    <style>
+        html, body {
+            min-height: 100vh;
+            font-family: sans-serif;
+        }
+        html, body, div, header, main, input {
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            box-sizing: border-box;
+            background-color: darkseagreen;
+            padding: 1rem 2rem;
+            height: 4rem;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            color: white;
+            font-weight: bold;
+            font-size: 1.4rem;
+        }
+        header h1 {
+            font-size: inherit;
+        }
+        header label {
+            display: none;
+        }
+        header select {
+            all: unset;
+            padding: .3rem 0 .3rem .5rem;
+            text-align: right;
+
+        }
+        header select option,
+        header select optgroup{
+            font-size: initial;
+        }
+        main {
+            padding: 1rem 2rem;
+        }
+        .divider {
+            display: flex;
+            flex-direction: column;
+            gap: .6rem;
+            margin: .6rem 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+            padding: .8rem;
+            text-align: end;
+            font-size: 1.6rem;
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            margin: 0 0 0 .8rem;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Currency converter</h1>
+    <div>
+        <label for="currency" aria-hidden="true">Currency</label>
+        <select id="currency" aria-label="Currency selector"></select>
+    </div>
+</header>
+
+<main>
+    <div class="divider">
+        <label for="domestic">ISK</label>
+        <input type="number" inputmode="numeric" name="domestic" id="domestic" value="1000" step="100" autocomplete="off">
+    </div>
+    <div class="divider">
+        <label for="foreign" id="foreign-label"></label>
+        <input type="number" inputmode="numeric" name="foreign" id="foreign" autocomplete="off">
+    </div>
+</main>
+
+<script>
+
+    const currencies = {
+        popular: {},
+        byCurrency: {},
+        byCountry: {},
+    };
+
+    const rates = xmlDoc.getElementsByTagName('Rate');
+
+    const popularList = ['AUD', 'USD', 'EUR', 'THB'];
+
+    for (let i = 0; i < rates.length; i++) {
+        const rate = {};
+        rates[i].childNodes.forEach((node) => {
+            let value;
+            switch (node.nodeName) {
+                case 'RateDate':
+                    const [day, month, year] = node.textContent.split('.', 3);
+                    const date = new Date();
+                    date.setUTCDate(Number.parseInt(day));
+                    date.setUTCMonth(Number.parseInt(month));
+                    date.setUTCFullYear(Number.parseInt(year));
+                    date.setUTCHours(0);
+                    date.setUTCMinutes(0);
+                    date.setUTCSeconds(0);
+                    value = date;
+                    break;
+                case 'GroupNo':
+                case 'CurrencyNum':
+                    value = Number.parseInt(node.textContent);
+                    break;
+                case 'CurrencyBuyRate':
+                case 'CurrencyRate':
+                case 'CurrencySellRate':
+                    value = Number.parseFloat(node.textContent);
+                    break
+                default:
+                    value = node.textContent;
+            }
+            rate[node.nodeName] = value;
+        });
+        if (popularList.includes(rate.CurrencyCode)) {
+            currencies.popular[rate.CurrencyCode] = rate;
+        }
+        if (rate.CountryCode) {
+            currencies.byCountry[rate.CountryCode] = rate;
+        }
+        currencies.byCurrency[rate.CurrencyCode] = rate;
+    }
+
+    const selector = document.getElementById('currency');
+    const domestic = document.getElementById('domestic');
+    const foreign = document.getElementById('foreign');
+
+    const getSelected = () => {
+        const value = window.localStorage.getItem('selected');
+        if (value === null) {
+            console.debug('No currency selected');
+            return null;
+        }
+
+        try {
+            return JSON.parse(value);
+        } catch (e) {
+            console.error('Unable to parse selected currency', {
+                value,
+            });
+            console.debug('Deleting stored value');
+            window.localStorage.removeItem('selected');
+            return null;
+        }
+    };
+
+    const updateForeign = () => {
+        const value = getFormValue(domestic);
+        setFormValue(foreign, (value / selected.CurrencyRate).toFixed(2));
+    };
+
+    const setSelected = (currencyCode) => {
+        if (currencies.byCurrency.hasOwnProperty(currencyCode)) {
+            selected = currencies.byCurrency[currencyCode];
+            window.localStorage.setItem('selected', JSON.stringify(selected));
+            updateForeign();
+            console.log(`Selecting currency ${selected.CurrencyCode}`);
+            document.getElementById('foreign-label').innerText = selected.CurrencyCode;
+        } else {
+            console.debug(`Currency ${currencyCode} not found`);
+            window.localStorage.removeItem('selected');
+        }
+    };
+
+    const getFormValue = (el) => {
+        return Number.parseInt(el.value);
+    };
+    const setFormValue = (el, value) => {
+        el.value = value;
+    };
+
+
+    selector.innerHTML = '';
+    let selected = getSelected();
+    let hasSelected = false;
+    const popularGroup = document.createElement('optgroup');
+    popularGroup.label = 'Popular';
+    Object.values(currencies.popular).forEach((currency, index) => {
+        const option = document.createElement('option');
+        option.value = currency.CurrencyCode;
+        option.innerText = currency.CurrencyCode;
+        if ((!hasSelected && selected && selected.CurrencyCode === currency.CurrencyCode) || (!hasSelected && !selected && index === 0)) {
+            setSelected(currency.CurrencyCode);
+            option.selected = true;
+            hasSelected = true;
+        }
+        popularGroup.appendChild(option);
+    });
+    selector.appendChild(popularGroup);
+    const byCurrencyGroup = document.createElement('optgroup');
+    byCurrencyGroup.label = 'By currency';
+    Object.values(currencies.byCurrency).sort((a, b) => {
+        if (a.CurrencyCode < b.CurrencyCode) {
+            return -1;
+        }
+        if (a.CurrencyCode > b.CurrencyCode) {
+            return 1;
+        }
+        return 0;
+    }).forEach((currency, index) => {
+        const option = document.createElement('option');
+        option.value = currency.CurrencyCode;
+        // option.innerText = `${currency.CurrencyCode}: ${currency.CurrencyDescription}`;
+        option.innerText = currency.CurrencyCode;
+        if (!hasSelected && selected && selected.CurrencyCode === currency.CurrencyCode) {
+            setSelected(currency.CurrencyCode);
+            option.selected = true;
+            hasSelected = true;
+        }
+        byCurrencyGroup.appendChild(option);
+    });
+    selector.appendChild(byCurrencyGroup);
+    const byCountryGroup = document.createElement('optgroup');
+    byCountryGroup.label = 'By country';
+    Object.values(currencies.byCountry).sort((a, b) => {
+        if (a.CountryEnglish < b.CountryEnglish) {
+            return -1;
+        }
+        if (a.CountryEnglish > b.CountryEnglish) {
+            return 1;
+        }
+        return 0;
+    }).forEach((currency, index) => {
+        const option = document.createElement('option');
+        option.value = currency.CurrencyCode;
+        // option.innerText = `${currency.CurrencyCode}: ${currency.CurrencyDescription}`;
+        option.innerText = currency.CountryEnglish;
+        if (!hasSelected && selected && selected.CurrencyCode === currency.CurrencyCode) {
+            setSelected(currency.CurrencyCode);
+            option.selected = true;
+            hasSelected = true;
+        }
+        byCountryGroup.appendChild(option);
+    });
+    selector.appendChild(byCountryGroup);
+
+    selector.addEventListener('change', (e) => setSelected(e.target.value));
+
+    domestic.addEventListener('change', updateForeign);
+    domestic.addEventListener('input', updateForeign);
+    foreign.addEventListener('change', () => {
+        const value = getFormValue(foreign);
+        setFormValue(domestic, (value * selected.CurrencyRate).toFixed(2));
+    });
+
+    //console.log(currencies);
+
+    const updateCurrencies = () => {
+        fetch(xmlEndpoint)
+            .then((r) => {
+                r.text().then((text) => {
+                    console.log(text);
+                    document.getElementById('output').innerText = text
+                    window.localStorage.setItem('xml', text);
+                });
+            })
+            .catch()
+            .finally();
+    };
+</script>
+
+</body>
+</html>
