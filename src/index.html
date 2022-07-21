@@ -147,7 +147,8 @@
     };
 
     const getFormValue = (el) => {
-        return Number.parseFloat(el.value);
+        const value = Number.parseFloat(el.value);
+        return isNaN(value) ? 0 : value;
     };
     const setFormValue = (el, value) => {
         el.value = value;
