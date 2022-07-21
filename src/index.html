@@ -57,6 +57,10 @@
             text-align: end;
             font-size: 1.6rem;
         }
+        .currency-description {
+            font-size: .9em;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -71,11 +75,11 @@
 
 <main>
     <div class="divider">
-        <label for="domestic">ISK</label>
+        <label for="domestic"><span>ISK</span> <span class="currency-description">(króna, íslensk)</span></label>
         <input type="text" inputmode="numeric" name="domestic" id="domestic" pattern="^[0-9,.]+$" value="1" autocomplete="off">
     </div>
     <div class="divider">
-        <label for="foreign" id="foreign-label"></label>
+        <label for="foreign"><span id="foreign-label"></span> <span id="foreign-label-description" class="currency-description"></span></label>
         <input type="text" inputmode="numeric" name="foreign" id="foreign" pattern="^[0-9,.]+$" autocomplete="off">
     </div>
 </main>
@@ -132,6 +136,7 @@
             updateForeign();
             console.log(`Selecting currency ${selected.CurrencyCode}`);
             document.getElementById('foreign-label').innerText = selected.CurrencyCode;
+            document.getElementById('foreign-label-description').innerText = `(${selected.CurrencyDescription})`;
         } else {
             console.debug(`Currency ${currencyCode} not found`);
             window.localStorage.removeItem('selected');
