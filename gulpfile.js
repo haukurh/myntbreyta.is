@@ -28,7 +28,7 @@ function html(cb) {
                     decodeEntities: true,
                     html5: true,
                     minifyCSS: true,
-                    minifyJS: false,
+                    minifyJS: true,
                     removeComments: true,
                 });
                 file.contents = Buffer.from(minifiedHTML);
