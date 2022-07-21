@@ -72,11 +72,11 @@
 <main>
     <div class="divider">
         <label for="domestic">ISK</label>
-        <input type="text" inputmode="numeric" name="domestic" id="domestic" value="1" autocomplete="off">
+        <input type="text" inputmode="numeric" name="domestic" id="domestic" pattern="^[0-9,.]+$" value="1" autocomplete="off">
     </div>
     <div class="divider">
         <label for="foreign" id="foreign-label"></label>
-        <input type="text" inputmode="numeric" name="foreign" id="foreign" autocomplete="off">
+        <input type="text" inputmode="numeric" name="foreign" id="foreign" pattern="^[0-9,.]+$" autocomplete="off">
     </div>
 </main>
 
