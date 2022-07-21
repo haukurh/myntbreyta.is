@@ -7,6 +7,7 @@
     <title>Currency converter</title>
     <style>
         html, body {
+            min-height: 100vh;
             font-family: sans-serif;
         }
         html, body, div, header, main, input {
@@ -79,6 +80,8 @@
 </main>
 
 <script>
+
+    document.addEventListener('touchmove', (e) => e.preventDefault());
 
     const currencies = {
         popular: {},
