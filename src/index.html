@@ -141,6 +141,11 @@
         setFormValue(foreign, (value / selected.CurrencyRate).toFixed(2));
     };
 
+    const updateDomestic = () => {
+        const value = getFormValue(foreign);
+        setFormValue(domestic, (value * selected.CurrencyRate).toFixed(2));
+    };
+
     const setSelected = (currencyCode) => {
         if (currencies.byCurrency.hasOwnProperty(currencyCode)) {
             selected = currencies.byCurrency[currencyCode];
@@ -231,10 +236,8 @@
     selector.addEventListener('change', (e) => setSelected(e.target.value));
     domestic.addEventListener('change', updateForeign);
     domestic.addEventListener('input', updateForeign);
-    foreign.addEventListener('change', () => {
-        const value = getFormValue(foreign);
-        setFormValue(domestic, (value * selected.CurrencyRate).toFixed(2));
-    });
+    foreign.addEventListener('change', updateDomestic);
+    foreign.addEventListener('input', updateDomestic);
 
     //console.log(currencies);
 
