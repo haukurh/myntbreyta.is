@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark light">
+    <title>Currency converter</title>
+    <link href="/css/app-shell.css" media="all" rel="stylesheet" type="text/css">
+</head>
+<body>
+
+<header>
+    <h1>Settings</h1>
+</header>
+
+<main>
+    <form>
+        <div class="divider">
+        <label for="currencies">Select currencies</label>
+        <select id="currencies" multiple></select>
+        </div>
+        <button type="button" id="fetch">Fetch currencies</button>
+        <button type="button" id="resetPreferences">Reset preferences</button>
+        <button type="button" id="resetEverything">Reset everything</button>
+    </form>
+</main>
+
+<script>
+
+    const options = {
+        popular: [],
+        byCurrency: [],
+        byCountry: [],
+    };
+
+    const popularList = ['AUD', 'USD', 'GBP', 'SEK', 'EUR', 'THB'];
+
+    const getUserSelectedCurrencies = () => {
+        const key = 'userSelectedCurrencies';
+        const selected = localStorage.get(key);
+        if (!selected) {
+            localStorage.set(key, popularList);
+            return popularList;
+        }
+        if (!Array.isArray(selected)) {
+            localStorage.remove(key);
+            return getUserSelectedCurrencies();
+        }
+        return selected;
+    };
+
+    const selector = document.getElementById('currencies');
+    const updateSelector = () => {
+        selector.innerHTML = '';
+        const selected = getUserSelectedCurrencies();
+        console.log({ selected });
+        const popularGroup = document.createElement('optgroup');
+        popularGroup.label = 'Popular';
+        console.log({
+            options,
+            selected,
+        });
+        options.popular.forEach((currency) => {
+            const option = document.createElement('option');
+            option.value = currency.CurrencyCode;
+            option.innerText = currency.CurrencyCode;
+            if (selected.includes(currency.CurrencyCode)) {
+                option.selected = true;
+            }
+            popularGroup.appendChild(option);
+        });
+        selector.appendChild(popularGroup);
+        const byCurrencyGroup = document.createElement('optgroup');
+        byCurrencyGroup.label = 'By currency';
+        options.byCurrency.forEach((currency) => {
+            const option = document.createElement('option');
+            option.value = currency.CurrencyCode;
+            option.innerText = currency.CurrencyCode;
+            if (selected.includes(currency.CurrencyCode)) {
+                option.selected = true;
+            }
+            byCurrencyGroup.appendChild(option);
+        });
+        selector.appendChild(byCurrencyGroup);
+        const byCountryGroup = document.createElement('optgroup');
+        byCountryGroup.label = 'By country';
+        options.byCountry.forEach((currency) => {
+            const option = document.createElement('option');
+            option.value = currency.CurrencyCode;
+            option.innerText = currency.CountryEnglish;
+            byCountryGroup.appendChild(option);
+        });
+        selector.appendChild(byCountryGroup);
+    };
+
+    const localStorage = {
+        get: (key) => JSON.parse(window.localStorage.getItem(key)),
+        set: (key, value) => window.localStorage.setItem(key, JSON.stringify(value)),
+        remove: (key) => window.localStorage.removeItem(key),
+        clear: () => window.localStorage.clear(),
+    };
+
+    const updateCurrencies = async () => {
+        if (!navigator.onLine) {
+            console.warn('The browser is offline');
+        }
+        console.log('Fetching currencies');
+        await fetch('/currency-rates.json')
+            .then((response) => response.json())
+            .then((json) => localStorage.set('currencies', json))
+            .catch((error) => console.error('Unable to fetch currency data', { error }));
+    };
+
+    const _fetchCurrencies = async () => {
+        const key = 'currencies';
+        const stored = localStorage.get(key);
+        if (stored) {
+            console.log(stored);
+            return stored;
+        }
+        console.log('data not set in localStorage, fetching for the first time...');
+        await updateCurrencies();
+        return localStorage.get(key);
+    };
+
+    const getCurrencies = async () => {
+        const currencies = await _fetchCurrencies();
+        if (currencies) {
+            let age = (new Date()) - (new Date(currencies.updatedAt));
+            // Calculate age from milliseconds to days
+            age = age / (1000 * 3600 * 24);
+            if (age > 1) {
+                console.log('Data is older than one day, fetching again...');
+                await updateCurrencies();
+            }
+            return await _fetchCurrencies();
+        }
+        return currencies;
+    };
+
+    const _sortByCurrencyCode = (a, b) => {
+        if (a.CountryEnglish < b.CountryEnglish) {
+            return 1;
+        }
+        if (a.CountryEnglish > b.CountryEnglish) {
+            return -1;
+        }
+        return 0;
+    };
+
+    const setPopularCurrencies = (data) => {
+        const rates = {};
+        data.rates
+            .filter((rate) => popularList.includes(rate.CurrencyCode))
+            .forEach((rate) => rates[rate.CurrencyCode] = rate);
+        options.popular = Object.values(rates)
+            .sort(_sortByCurrencyCode);
+        return data;
+    };
+
+    const setCurrenciesByCode = (data) => {
+        const rates = {};
+        data.rates
+            .filter((rate) => !popularList.includes(rate.CurrencyCode))
+            .forEach((rate) => rates[rate.CurrencyCode] = rate);
+        options.byCurrency = Object.values(rates)
+            .sort(_sortByCurrencyCode);
+        return data;
+    };
+
+    const setCurrenciesByCountry = (data) => {
+        options.byCountry = data.rates
+            .filter((rate) => (rate.CountryCode || ['æ'].includes(rate.CountryCode)))
+            .sort((a, b) => {
+                if (a.CountryEnglish < b.CountryEnglish) {
+                    return -1;
+                }
+                if (a.CountryEnglish > b.CountryEnglish) {
+                    return 1;
+                }
+                return 0;
+            });
+        return data;
+    }
+
+    getCurrencies()
+        .then(setPopularCurrencies)
+        .then(setCurrenciesByCode)
+        .then(setCurrenciesByCountry)
+        .then(() => updateSelector());
+
+    document.getElementById('fetch').addEventListener('click', async () => {
+        await updateCurrencies();
+        await _fetchCurrencies();
+    });
+    document.getElementById('resetEverything').addEventListener('click', async () => {
+        localStorage.clear();
+        updateSelector();
+    });
+    document.getElementById('resetPreferences').addEventListener('click', async () => {
+        localStorage.clear();
+        updateSelector();
+    });
+
+    const selectBox = document.getElementById('currencies');
+    selectBox.addEventListener('change', (e) => {
+        const selected = [];
+        Array.from(e.target.options).forEach((opt) => {
+            if (opt.selected) {
+                selected.push(opt.value);
+            }
+        });
+        localStorage.set('userSelectedCurrencies', selected);
+    });
+
+</script>
+
+</body>
+</html>
