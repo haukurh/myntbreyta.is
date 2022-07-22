@@ -246,7 +246,7 @@
                     if (popularList.includes(rate.CurrencyCode)) {
                         currencies.popular[rate.CurrencyCode] = rate;
                     }
-                    if (rate.CountryCode) {
+                    if (rate.CountryCode && rate.CountryEnglish !== 'æ') {
                         currencies.byCountry[rate.CountryCode] = rate;
                     }
                     currencies.byCurrency[rate.CurrencyCode] = rate;
