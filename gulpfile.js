@@ -14,15 +14,15 @@ function clean(cb) {
 }
 
 function staticFiles(cb) {
-    src('./src/*.ico')
+    src('./src/**/*.ico')
         .pipe(dest(distFolder));
-    src('./src/*.json')
+    src('./src/**/*.json')
         .pipe(dest(distFolder));
     cb();
 }
 
 function html(cb) {
-    src('src/*.html')
+    src('src/**/*.html')
         .pipe(through2.obj(function(file, _, cb) {
             if (file.isBuffer()) {
                 const minifiedHTML = htmlJs.minify(file.contents.toString(), {
@@ -42,7 +42,7 @@ function html(cb) {
 }
 
 function javascript(cb) {
-    src('src/*.js')
+    src('src/**/*.js')
         .pipe(through2.obj(function(file, _, cb) {
             if (file.isBuffer()) {
                 const minifiedJs = jsJs.minify(file.contents.toString());
@@ -56,7 +56,7 @@ function javascript(cb) {
 }
 
 function css(cb) {
-    src('src/*.css')
+    src('src/**/*.css')
         .pipe(through2.obj(function(file, _, cb) {
             if (file.isBuffer()) {
                 const css = cssJs.minify(file.contents.toString()).css;
@@ -74,8 +74,8 @@ exports.build = series(clean, staticFiles, html, css, javascript);
 exports.default = function(cb) {
     clean(() => {});
     staticFiles(() => {});
-    watch('src/*.css', { ignoreInitial: false }, css);
-    watch('src/*.html', { ignoreInitial: false }, html);
-    watch('src/*.js', { ignoreInitial: false }, javascript);
+    watch('src/**/*.css', { ignoreInitial: false }, css);
+    watch('src/**/*.html', { ignoreInitial: false }, html);
+    watch('src/**/*.js', { ignoreInitial: false }, javascript);
     cb();
 };
