@@ -1,0 +1,55 @@
+html, body {
+    min-height: 100vh;
+    font-family: sans-serif;
+}
+html, body, div, header, main, input {
+    margin: 0;
+    padding: 0;
+}
+header {
+    box-sizing: border-box;
+    background-color: darkseagreen;
+    padding: 1rem 2rem;
+    height: 4rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    color: white;
+    font-weight: bold;
+    font-size: 1.4rem;
+}
+header h1 {
+}
+header label {
+    display: none;
+}
+header select {
+    all: unset;
+    padding: .3rem 0 .3rem .5rem;
+    text-align: right;
+    text-align: -webkit-right;
+    max-width: 50vw;
+}
+header select option,
+header select optgroup{
+    font-size: initial;
+}
+main {
+    padding: 1rem 2rem;
+}
+.divider {
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+    margin: .6rem 0;
+}
+input[type="text"] {
+    padding: .8rem;
+    text-align: end;
+    font-size: 1.6rem;
+}
+.currency-description {
+    font-size: .9em;
+    font-style: italic;
+}
