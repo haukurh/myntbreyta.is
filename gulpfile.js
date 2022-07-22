@@ -16,6 +16,8 @@ function clean(cb) {
 function staticFiles(cb) {
     src('./src/*.ico')
         .pipe(dest(distFolder));
+    src('./src/*.json')
+        .pipe(dest(distFolder));
     cb();
 }
 
