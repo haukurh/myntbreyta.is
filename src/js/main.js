@@ -1,11 +1,5 @@
 
-document.addEventListener('touchmove', (e) => e.preventDefault());
-
-const currencies = {
-    popular: {},
-    byCurrency: {},
-    byCountry: {},
-};
+let currencies = [];
 
 const popularList = ['AUD', 'USD', 'EUR', 'THB'];
 
@@ -13,47 +7,51 @@ const selector = document.getElementById('currency');
 const domestic = document.getElementById('domestic');
 const foreign = document.getElementById('foreign');
 
-const getSelected = () => {
-    const value = window.localStorage.getItem('selected');
-    if (value === null) {
-        console.debug('No currency selected');
-        return null;
+const getCurrentRate = () => {
+    let rate = document.getElementById('rate').dataset.rate;
+    if (!rate) {
+        return 0;
     }
-
-    try {
-        return JSON.parse(value);
-    } catch (e) {
-        console.error('Unable to parse selected currency', {
-            value,
-        });
-        console.debug('Deleting stored value');
-        window.localStorage.removeItem('selected');
-        return null;
-    }
-};
+    rate = parseFloat(rate);
+    return isNaN(rate) ? 0 : rate;
+}
 
 const updateForeign = () => {
     const value = getFormValue(domestic);
-    setFormValue(foreign, (value / selected.CurrencyRate).toFixed(2));
+    setFormValue(foreign, (value / getCurrentRate()).toFixed(2));
 };
 
 const updateDomestic = () => {
     const value = getFormValue(foreign);
-    setFormValue(domestic, (value * selected.CurrencyRate).toFixed(2));
+    setFormValue(domestic, (value * getCurrentRate()).toFixed(2));
 };
 
 const setSelected = (currencyCode) => {
-    if (currencies.byCurrency.hasOwnProperty(currencyCode)) {
-        selected = currencies.byCurrency[currencyCode];
-        window.localStorage.setItem('selected', JSON.stringify(selected));
-        updateForeign();
-        console.log(`Selecting currency ${selected.CurrencyCode}`);
-        document.getElementById('foreign-label').innerText = selected.CurrencyCode;
-        document.getElementById('foreign-label-description').innerText = `(${selected.CurrencyDescription})`;
-    } else {
-        console.debug(`Currency ${currencyCode} not found`);
-        window.localStorage.removeItem('selected');
+    let currency = null;
+    const currencies = JSON.parse(window.localStorage.getItem('currencies'));
+    if (!currencies) {
+        console.warn('No currencies found, when selecting');
+        return;
     }
+    for (const currenciesKey in currencies.rates) {
+        if (currencies.rates[currenciesKey].CurrencyCode === currencyCode) {
+            currency = currencies.rates[currenciesKey];
+            break;
+        }
+    }
+    if (!currency) {
+        console.warn('Unable to find selected currency, when selecting', {
+            currencyCode,
+        });
+        window.localStorage.removeItem('selected');
+        return;
+    }
+    console.log(`Selecting currency ${currencyCode}`);
+    window.localStorage.setItem('current', JSON.stringify(currency.CurrencyCode));
+    document.getElementById('foreign-label').innerText = currency.CurrencyCode;
+    document.getElementById('foreign-label-description').innerText = `(${currency.CurrencyDescription})`;
+    document.getElementById('rate').dataset.rate = currency.CurrencyRate;
+    updateForeign();
 };
 
 const moveCursorToEnd = (e) => {
@@ -72,71 +70,37 @@ const setFormValue = (el, value) => {
     el.value = value;
 };
 
+const _getUniqueCurrencies = (needle, haystack) => {
+    const pool = {};
+    haystack
+        .filter((rate) => needle.includes(rate.CurrencyCode))
+        .forEach((rate) => pool[rate.CurrencyCode] = rate);
+    return Object.values(pool);
+};
 
 const updateSelector = () => {
+    const current = JSON.parse(window.localStorage.getItem('current'));
+    const currencies = JSON.parse(window.localStorage.getItem('currencies'));
+    const userSelectedCurrencies = JSON.parse(window.localStorage.getItem('userSelectedCurrencies'));
+    const selector = document.getElementById('currency');
+    if (!userSelectedCurrencies) {
+        console.error('No currencies available for selector');
+        return;
+    }
     selector.innerHTML = '';
-    let selected = getSelected();
-    let hasSelected = false;
-    const popularGroup = document.createElement('optgroup');
-    popularGroup.label = 'Popular';
-    Object.values(currencies.popular).forEach((currency, index) => {
-        const option = document.createElement('option');
-        option.value = currency.CurrencyCode;
-        option.innerText = currency.CurrencyCode;
-        if ((!hasSelected && selected && selected.CurrencyCode === currency.CurrencyCode) || (!hasSelected && !selected && index === 0)) {
-            setSelected(currency.CurrencyCode);
-            option.selected = true;
-            hasSelected = true;
-        }
-        popularGroup.appendChild(option);
-    });
-    selector.appendChild(popularGroup);
-    const byCurrencyGroup = document.createElement('optgroup');
-    byCurrencyGroup.label = 'By currency';
-    Object.values(currencies.byCurrency).sort((a, b) => {
-        if (a.CurrencyCode < b.CurrencyCode) {
-            return -1;
-        }
-        if (a.CurrencyCode > b.CurrencyCode) {
-            return 1;
-        }
-        return 0;
-    }).forEach((currency) => {
-        const option = document.createElement('option');
-        option.value = currency.CurrencyCode;
-        // option.innerText = `${currency.CurrencyCode}: ${currency.CurrencyDescription}`;
-        option.innerText = currency.CurrencyCode;
-        if (!hasSelected && selected && selected.CurrencyCode === currency.CurrencyCode) {
-            setSelected(currency.CurrencyCode);
-            option.selected = true;
-            hasSelected = true;
-        }
-        byCurrencyGroup.appendChild(option);
-    });
-    selector.appendChild(byCurrencyGroup);
-    const byCountryGroup = document.createElement('optgroup');
-    byCountryGroup.label = 'By country';
-    Object.values(currencies.byCountry).sort((a, b) => {
-        if (a.CountryEnglish < b.CountryEnglish) {
-            return -1;
-        }
-        if (a.CountryEnglish > b.CountryEnglish) {
-            return 1;
-        }
-        return 0;
-    }).forEach((currency) => {
-        const option = document.createElement('option');
-        option.value = currency.CurrencyCode;
-        // option.innerText = `${currency.CurrencyCode}: ${currency.CurrencyDescription}`;
-        option.innerText = currency.CountryEnglish;
-        if (!hasSelected && selected && selected.CurrencyCode === currency.CurrencyCode) {
-            setSelected(currency.CurrencyCode);
-            option.selected = true;
-            hasSelected = true;
-        }
-        byCountryGroup.appendChild(option);
-    });
-    selector.appendChild(byCountryGroup);
+    console.log(currencies);
+    _getUniqueCurrencies(userSelectedCurrencies, currencies.rates)
+        .forEach((rate, index) => {
+            const option = document.createElement('option');
+            option.value = rate.CurrencyCode;
+            option.innerText = rate.CurrencyCode;
+            if ((!current && index === 0) || rate.CurrencyCode === current) {
+                option.selected = true;
+                setSelected(rate.CurrencyCode);
+            }
+            selector.appendChild(option);
+        });
+    return '';
 }
 
 selector.addEventListener('change', (e) => setSelected(e.target.value));
@@ -150,23 +114,9 @@ foreign.addEventListener('focus', moveCursorToEnd);
 const updateCurrencies = () => {
     fetch('/currency-rates.json')
         .then((response) => response.text())
-        .then((text) => JSON.parse(text))
-        .then((data) => {
-            currencies.popular = {};
-            currencies.byCurrency = {};
-            currencies.byCountry = {};
-            data.rates.forEach((rate) => {
-                if (popularList.includes(rate.CurrencyCode)) {
-                    currencies.popular[rate.CurrencyCode] = rate;
-                }
-                if (rate.CountryCode && rate.CountryEnglish !== 'æ') {
-                    currencies.byCountry[rate.CountryCode] = rate;
-                }
-                currencies.byCurrency[rate.CurrencyCode] = rate;
-            });
-        })
+        .then((json) => window.localStorage.setItem('currencies', json))
         .then(() => updateSelector())
-        .catch((error) => console.error('Unable to fetch currency data', { error }));
+        .then(() => updateForeign());
 };
 
 updateCurrencies();

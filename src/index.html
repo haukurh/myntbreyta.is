@@ -18,14 +18,18 @@
 </header>
 
 <main>
-    <div class="divider">
-        <label for="domestic"><span>ISK</span> <span class="currency-description">(króna, íslensk)</span></label>
-        <input type="text" inputmode="numeric" name="domestic" id="domestic" pattern="^[0-9,.]+$" value="1" autocomplete="off">
-    </div>
-    <div class="divider">
-        <label for="foreign"><span id="foreign-label"></span> <span id="foreign-label-description" class="currency-description"></span></label>
-        <input type="text" inputmode="numeric" name="foreign" id="foreign" pattern="^[0-9,.]+$" autocomplete="off">
-    </div>
+    <form>
+        <input type="hidden" id="rate" data-rate="1.0">
+        <div class="divider">
+            <label for="domestic"><span>ISK</span> <span class="currency-description">(króna, íslensk)</span></label>
+            <input type="text" inputmode="numeric" name="domestic" id="domestic" pattern="^[0-9,.]+$" value="1" autocomplete="off">
+        </div>
+        <div class="divider">
+            <label for="foreign"><span id="foreign-label">ISK</span> <span id="foreign-label-description" class="currency-description">(króna, íslensk)</span></label>
+            <input type="text" inputmode="numeric" name="foreign" id="foreign" pattern="^[0-9,.]+$" value="1" autocomplete="off">
+        </div>
+        <div><a href="/settings">Settings</a></div>
+    </form>
 </main>
 
 <script src="/js/main.js" type="application/javascript"></script>
