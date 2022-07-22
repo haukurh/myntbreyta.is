@@ -1,10 +1,12 @@
 const { watch, series, src, dest } = require('gulp');
 const rename = require('gulp-rename');
+const replace = require('gulp-replace');
 const through2 = require('through2');
 const htmlJs = require('html-minifier');
 const cssJs = require('csso');
 const jsJs = require("uglify-js");
 const del = require('del');
+const fs = require('fs');
 
 const distFolder = 'dist/';
 
@@ -21,8 +23,26 @@ function staticFiles(cb) {
     cb();
 }
 
+const handleMinifiedUrls = (data) => {
+    let filename = 'src';
+    const match = data.match(/"(?<filename>.*)"/);
+    if (!match) {
+        return data;
+    }
+    filename += match.groups.filename;
+
+    if (!fs.existsSync(filename)) {
+        return data;
+    }
+
+    return data
+        .replace('.css"', '.min.css"')
+        .replace('.js"', '.min.js"');
+};
+
 function html(cb) {
     src('src/**/*.html')
+        .pipe(replace(/(href|src)="(.+?(\.js|\.css))"/g, handleMinifiedUrls))
         .pipe(through2.obj(function(file, _, cb) {
             if (file.isBuffer()) {
                 const minifiedHTML = htmlJs.minify(file.contents.toString(), {
