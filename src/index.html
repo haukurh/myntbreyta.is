@@ -96,18 +96,17 @@
 
     const updateSelector = (currencies) => {
         console.log('Running updateSelector');
-        const current = localStorage.get(localStorage.keys.CURRENT);
-        let userSelectedCurrencies = getUserSelectedCurrencies();
+        const current = getUserSelectedCurrency();
+        const userSelectedCurrencies = getUserSelectedCurrencies();
         const selector = document.getElementById('currency');
         selector.innerHTML = '';
         _getUniqueCurrencies(userSelectedCurrencies, currencies.rates)
-            .forEach((rate, index) => {
+            .forEach((rate) => {
                 const option = document.createElement('option');
                 option.value = rate.CurrencyCode;
                 option.innerText = rate.CurrencyCode;
-                if ((!current && index === 0) || rate.CurrencyCode === current) {
+                if (rate.CurrencyCode === current) {
                     option.selected = true;
-                    setSelected(rate.CurrencyCode);
                 }
                 selector.appendChild(option);
             });

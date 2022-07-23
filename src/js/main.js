@@ -26,6 +26,22 @@ const getUserSelectedCurrencies = () => {
     return selected;
 };
 
+const getUserSelectedCurrency = () => {
+    const userSelectedCurrencies = getUserSelectedCurrencies();
+    const current = localStorage.get(localStorage.keys.CURRENT);
+    if (!current) {
+        console.log('No currency selected for user, setting default');
+        localStorage.set(localStorage.keys.CURRENT, userSelectedCurrencies[0]);
+        return userSelectedCurrencies[0];
+    }
+    if (!userSelectedCurrencies.includes(current)) {
+        console.log('Selected currency not available, resetting to first as default');
+        localStorage.set(localStorage.keys.CURRENT, userSelectedCurrencies[0]);
+        return userSelectedCurrencies[0];
+    }
+    return current;
+};
+
 const updateCurrencies = async () => {
     if (!navigator.onLine) {
         console.warn('The browser is offline');
