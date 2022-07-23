@@ -1,8 +1,9 @@
 html, body {
     min-height: 100vh;
+    min-height: -webkit-fill-available;
     font-family: sans-serif;
 }
-html, body, div, header, main, input {
+html, body, div, header, main {
     margin: 0;
     padding: 0;
 }
