@@ -99,10 +99,6 @@
         const current = localStorage.get(localStorage.keys.CURRENT);
         let userSelectedCurrencies = getUserSelectedCurrencies();
         const selector = document.getElementById('currency');
-        if (!userSelectedCurrencies) {
-            console.error('No currencies available for selector');
-            userSelectedCurrencies = ['AUD', 'USD', 'GBP', 'SEK', 'EUR', 'THB'];
-        }
         selector.innerHTML = '';
         _getUniqueCurrencies(userSelectedCurrencies, currencies.rates)
             .forEach((rate, index) => {
