@@ -22,11 +22,17 @@
         <input type="hidden" id="rate" data-rate="1.0">
         <div class="divider">
             <label for="domestic"><span>ISK</span> <span class="currency-description">(króna, íslensk)</span></label>
-            <input type="text" inputmode="numeric" name="domestic" id="domestic" pattern="^[0-9,.]+$" value="1" autocomplete="off">
+            <div class="currency-container">
+                <input type="number" inputmode="numeric" name="domestic" id="domestic" class="currency-hidden" value="1" autocomplete="off">
+                <div id="domestic-readonly" class="currency-front">1</div>
+            </div>
         </div>
         <div class="divider">
             <label for="foreign"><span id="foreign-label">ISK</span> <span id="foreign-label-description" class="currency-description">(króna, íslensk)</span></label>
-            <input type="text" inputmode="numeric" name="foreign" id="foreign" pattern="^[0-9,.]+$" value="1" autocomplete="off">
+            <div class="currency-container">
+                <input type="number" inputmode="numeric" name="foreign" id="foreign" value="1" class="currency-hidden" autocomplete="off">
+                <div id="foreign-readonly" class="currency-front">1</div>
+            </div>
         </div>
         <div><a href="/settings">Settings</a></div>
     </form>
@@ -34,6 +40,12 @@
 
 <script src="/js/main.js" type="application/javascript"></script>
 <script>
+    const selector = document.getElementById('currency');
+    const domestic = document.getElementById('domestic');
+    const domesticReadonly = document.getElementById('domestic-readonly');
+    const foreign = document.getElementById('foreign');
+    const foreignReadonly = document.getElementById('foreign-readonly');
+
     const setSelected = async (currencyCode) => {
         let currency = null;
         const currencies = await _fetchCurrencies();
@@ -76,14 +88,26 @@
         return isNaN(value) ? 0 : value;
     };
 
+    const updateFront = () => {
+        const domesticValue = getFormValue(domestic);
+        domesticReadonly.innerText = new Intl.NumberFormat('is-IS', { style: 'currency', currency: 'ISK' }).format(domesticValue);
+        const currencyCode = getUserSelectedCurrency();
+        const foreignValue = getFormValue(foreign);
+        foreignReadonly.innerText = new Intl.NumberFormat('is-IS', { style: 'currency', currency: currencyCode }).format(foreignValue);
+    };
+
     const updateForeign = () => {
+        console.log('Updating foreign');
         const value = getFormValue(domestic);
         foreign.value = (value / getCurrentRate()).toFixed(2);
+        updateFront();
     };
 
     const updateDomestic = () => {
+        console.log('Updating domestic');
         const value = getFormValue(foreign);
         domestic.value = (value * getCurrentRate()).toFixed(2);
+        updateFront();
     };
 
     const _getUniqueCurrencies = (needle, haystack) => {
@@ -107,21 +131,33 @@
                 option.innerText = rate.CurrencyCode;
                 if (rate.CurrencyCode === current) {
                     option.selected = true;
+                    setSelected(current);
                 }
                 selector.appendChild(option);
             });
         return currencies;
     }
 
-    const selector = document.getElementById('currency');
-    const domestic = document.getElementById('domestic');
-    const foreign = document.getElementById('foreign');
-
     selector.addEventListener('change', (e) => setSelected(e.target.value));
     domestic.addEventListener('change', updateForeign);
     domestic.addEventListener('input', updateForeign);
     foreign.addEventListener('change', updateDomestic);
     foreign.addEventListener('input', updateDomestic);
+
+    foreignReadonly.addEventListener('click', () => {
+        foreign.focus();
+        foreign.value = parseInt(foreign.value);
+    });
+    domesticReadonly.addEventListener('click', () => {
+        domestic.focus();
+        domestic.value = parseInt(domestic.value);
+    });
+
+    // If we already have the currencies in storage, then get them as quickly as possible
+    const curr = localStorage.get(localStorage.keys.CURRENCIES);
+    if (curr) {
+        updateSelector(curr);
+    }
 
     getCurrencies()
         .then((currencies) => updateSelector(currencies))
