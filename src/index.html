@@ -34,9 +34,9 @@
 
 <script src="/js/main.js" type="application/javascript"></script>
 <script>
-    const setSelected = (currencyCode) => {
+    const setSelected = async (currencyCode) => {
         let currency = null;
-        const currencies = JSON.parse(window.localStorage.getItem('currencies'));
+        const currencies = await _fetchCurrencies();
         if (!currencies) {
             console.warn('No currencies found, when selecting');
             return;
@@ -51,11 +51,11 @@
             console.warn('Unable to find selected currency, when selecting', {
                 currencyCode,
             });
-            window.localStorage.removeItem('selected');
+            localStorage.remove(localStorage.keys.CURRENT);
             return;
         }
         console.log(`Selecting currency ${currencyCode}`);
-        window.localStorage.setItem('current', JSON.stringify(currency.CurrencyCode));
+        localStorage.set(localStorage.keys.CURRENT, currency.CurrencyCode);
         document.getElementById('foreign-label').innerText = currency.CurrencyCode;
         document.getElementById('foreign-label-description').innerText = `(${currency.CurrencyDescription})`;
         document.getElementById('rate').dataset.rate = currency.CurrencyRate;
@@ -94,17 +94,16 @@
         return Object.values(pool);
     };
 
-    const updateSelector = () => {
-        const current = JSON.parse(window.localStorage.getItem('current'));
-        const currencies = JSON.parse(window.localStorage.getItem('currencies'));
-        let userSelectedCurrencies = JSON.parse(window.localStorage.getItem('userSelectedCurrencies'));
+    const updateSelector = (currencies) => {
+        console.log('Running updateSelector');
+        const current = localStorage.get(localStorage.keys.CURRENT);
+        let userSelectedCurrencies = getUserSelectedCurrencies();
         const selector = document.getElementById('currency');
         if (!userSelectedCurrencies) {
             console.error('No currencies available for selector');
             userSelectedCurrencies = ['AUD', 'USD', 'GBP', 'SEK', 'EUR', 'THB'];
         }
         selector.innerHTML = '';
-        console.log(currencies);
         _getUniqueCurrencies(userSelectedCurrencies, currencies.rates)
             .forEach((rate, index) => {
                 const option = document.createElement('option');
@@ -116,7 +115,7 @@
                 }
                 selector.appendChild(option);
             });
-        return '';
+        return currencies;
     }
 
     const selector = document.getElementById('currency');
@@ -128,16 +127,10 @@
     domestic.addEventListener('input', updateForeign);
     foreign.addEventListener('change', updateDomestic);
     foreign.addEventListener('input', updateDomestic);
-    
-    const updateCurrencies = () => {
-        fetch('/currency-rates.json')
-            .then((response) => response.text())
-            .then((json) => window.localStorage.setItem('currencies', json))
-            .then(() => updateSelector())
-            .then(() => updateForeign());
-    };
 
-    updateCurrencies();
+    getCurrencies()
+        .then((currencies) => updateSelector(currencies))
+        .then(() => updateForeign());
 
 </script>
 
