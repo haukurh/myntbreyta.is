@@ -40,6 +40,10 @@
     </form>
 </main>
 
+<footer>
+    Updated at: <span id="currencyDate">unknown</span>
+</footer>
+
 <script src="/js/main.js" type="application/javascript"></script>
 <script>
     const selector = document.getElementById('currency');
@@ -140,6 +144,20 @@
         return currencies;
     }
 
+    const updateCurrencyDateInfo = (currencies) => {
+        if (!currencies || !currencies.updatedAt) {
+            return;
+        }
+        const el = document.getElementById('currencyDate');
+        const date = new Date(currencies.updatedAt);
+        el.innerText = (new Intl.DateTimeFormat(['is-IS', 'en-GB'], { dateStyle: 'long' }).format(date));
+    };
+
+    const updateUI = (currencies) => {
+        updateSelector(currencies);
+        updateCurrencyDateInfo(currencies);
+    };
+
     selector.addEventListener('change', (e) => setSelected(e.target.value));
     domestic.addEventListener('change', updateForeign);
     domestic.addEventListener('input', updateForeign);
@@ -162,7 +180,7 @@
     }
 
     getCurrencies()
-        .then((currencies) => updateSelector(currencies))
+        .then((currencies) => updateUI(currencies))
         .then(() => updateForeign());
 
 </script>

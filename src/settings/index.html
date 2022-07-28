@@ -30,6 +30,10 @@
     </div>
 </main>
 
+<footer>
+    Updated at: <span id="currencyDate">unknown</span>
+</footer>
+
 <script src="/js/main.js" type="application/javascript"></script>
 <script>
 
@@ -128,10 +132,20 @@
         return data;
     }
 
+    const updateCurrencyDateInfo = (currencies) => {
+        if (!currencies || !currencies.updatedAt) {
+            return;
+        }
+        const el = document.getElementById('currencyDate');
+        const date = new Date(currencies.updatedAt);
+        el.innerText = (new Intl.DateTimeFormat(['is-IS', 'en-GB'], { dateStyle: 'long' }).format(date));
+    };
+
     getCurrencies()
         .then(setPopularCurrencies)
         .then(setCurrenciesByCode)
         .then(setCurrenciesByCountry)
+        .then(updateCurrencyDateInfo)
         .then(() => updateSelector());
 
     document.getElementById('fetch').addEventListener('click', async () => {
