@@ -48,7 +48,7 @@ jobs:
           args: --size-only --cache-control="public,max-age=2592000"
 
       - name: Update service worker metadata
-        run: aws s3 cp sw.js s3://${{ secrets.AWS_S3_BUCKET }}/sw.js --cache-control="no-cache,no-store"
+        run: aws s3 cp dist/sw.js s3://${{ secrets.AWS_S3_BUCKET }}/sw.js --cache-control="no-cache,no-store"
 
       - name: Run CloudFront invalidation
         run: aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CLOUDFRONT_DIST }} --paths "/*"
