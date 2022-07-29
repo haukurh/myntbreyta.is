@@ -20,6 +20,8 @@ function staticFiles(cb) {
         .pipe(dest(distFolder));
     src('./src/**/*.json')
         .pipe(dest(distFolder));
+    src('./src/sw.js')
+        .pipe(dest(distFolder));
     cb();
 }
 
@@ -62,7 +64,7 @@ function html(cb) {
 }
 
 function javascript(cb) {
-    src('src/**/*.js')
+    src(['src/**/*.js', '!src/sw.js'])
         .pipe(through2.obj(function(file, _, cb) {
             if (file.isBuffer()) {
                 const minifiedJs = jsJs.minify(file.contents.toString());
