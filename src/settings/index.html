@@ -98,6 +98,7 @@
     };
 
     const setPopularCurrencies = (data) => {
+        console.log('setPopularCurrencies()');
         const rates = {};
         data.rates
             .filter((rate) => popularList.includes(rate.CurrencyCode))
@@ -108,6 +109,7 @@
     };
 
     const setCurrenciesByCode = (data) => {
+        console.log('setCurrenciesByCode()');
         const rates = {};
         data.rates
             .filter((rate) => !popularList.includes(rate.CurrencyCode))
@@ -118,6 +120,7 @@
     };
 
     const setCurrenciesByCountry = (data) => {
+        console.log('setCurrenciesByCountry()');
         options.byCountry = data.rates
             .filter((rate) => (rate.CountryCode || ['æ'].includes(rate.CountryCode)))
             .sort((a, b) => {
@@ -133,6 +136,7 @@
     }
 
     const updateCurrencyDateInfo = (currencies) => {
+        console.log('updateCurrencyDateInfo()');
         if (!currencies || !currencies.updatedAt) {
             return;
         }
@@ -149,12 +153,25 @@
         .then(() => updateSelector());
 
     document.getElementById('fetch').addEventListener('click', async () => {
-        await updateCurrencies();
-        await _fetchCurrencies();
+        await updateCurrencies(true);
+        _fetchCurrencies()
+            .then(setPopularCurrencies)
+            .then(setCurrenciesByCode)
+            .then(setCurrenciesByCountry)
+            .then(updateCurrencyDateInfo)
+            .then(() => updateSelector());
     });
     document.getElementById('resetEverything').addEventListener('click', async () => {
         localStorage.clear();
-        updateSelector();
+        await window.caches.keys()
+            .then(async (keys) => {
+                keys.map(async (key) => {
+                    console.log(`Deleting cache '${key}'`);
+                    return window.caches.delete(key);
+                });
+            });
+        await unregisterServiceWorker();
+        //updateSelector();
     });
     document.getElementById('resetPreferences').addEventListener('click', async () => {
         localStorage.clear();
