@@ -122,7 +122,6 @@ const _fetchCurrencies = async () => {
     const key = localStorage.keys.CURRENCIES;
     const stored = localStorage.get(key);
     if (stored) {
-        console.log(stored);
         return stored;
     }
     console.log('data not set in localStorage, fetching for the first time...');
@@ -138,7 +137,7 @@ const getCurrencies = async (fetchIfStale = true) => {
         age = age / (1000 * 3600 * 24);
         if (fetchIfStale && age > 1) {
             console.log('Data is older than one day, fetching again...');
-            await updateCurrencies();
+            await updateCurrencies(true);
         }
         return await _fetchCurrencies();
     }
