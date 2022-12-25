@@ -11,7 +11,7 @@ const putInCache = async (request, response) => {
 const cacheFirst = async ({ request, preloadResponsePromise, fallbackUrl }) => {
     // First try to get the resource from the cache
     const responseFromCache = await caches.match(request);
-    if (responseFromCache) {
+    if (responseFromCache && request.headers.get('cache-control') !== 'no-cache') {
         return responseFromCache;
     }
 
@@ -32,6 +32,10 @@ const cacheFirst = async ({ request, preloadResponsePromise, fallbackUrl }) => {
         putInCache(request, responseFromNetwork.clone());
         return responseFromNetwork;
     } catch (error) {
+        if (responseFromCache) {
+            console.warn('Network error unable to fetch resource, using from cache');
+            return responseFromCache;
+        }
         return new Response('Network error happened', {
             status: 408,
             headers: { 'Content-Type': 'text/plain' },
