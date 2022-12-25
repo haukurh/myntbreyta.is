@@ -66,12 +66,22 @@ const getUserSelectedCurrency = () => {
     return current;
 };
 
-const updateCurrencies = async () => {
+const updateCurrencies = async (force = false) => {
     if (!navigator.onLine) {
         console.warn('The browser is offline');
     }
     console.log('Fetching currencies');
-    await fetch('/currency-rates.json')
+    const options = {
+        method: 'GET',
+        credentials: 'omit',
+        headers: {
+            'accept': 'application/json',
+        }
+    };
+    if (force) {
+        options.headers['cache-control'] = 'no-cache';
+    }
+    await fetch('/currency-rates.json', options)
         .then((response) => response.json())
         .then((json) => localStorage.set(localStorage.keys.CURRENCIES, json))
         .catch((error) => console.error('Unable to fetch currency data', { error }));
