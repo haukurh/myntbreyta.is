@@ -20,6 +20,37 @@ const registerServiceWorker = async () => {
     }
 };
 
+const unregisterServiceWorker = async () => {
+    return new Promise((resolve, reject) => {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistration('/')
+                .then((registration) => {
+                    if (registration) {
+                        registration.unregister()
+                            .then((result) => {
+                                if (result) {
+                                    console.log('Service worker unregistered!');
+                                    resolve(result);
+                                } else {
+                                    console.warn('Unable to unregister service worker');
+                                    reject(result);
+                                }
+                            })
+                            .catch((e) => {
+                                console.error('Error when unregistering service worker', {
+                                    error: e,
+                                });
+                                reject(e);
+                            });
+                    } else {
+                        console.warn('No service worker registration available!');
+                        reject();
+                    }
+                });
+        }
+    });
+};
+
 registerServiceWorker();
 
 const popularList = ['AUD', 'USD', 'GBP', 'SEK', 'EUR', 'THB'];
