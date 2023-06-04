@@ -1,29 +1,29 @@
-name: Deploy to S3 site
+name: Deploy site
 
 on:
   release:
-    types: [created]
+    types: [ created ]
+  workflow_dispatch:
 
 jobs:
   deploy:
-    name: Deploy
+    name: Deploy site
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-west-1
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Use Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
-          node-version: '14.x'
+          node-version: '18.x'
 
       - name: Install dependencies
         run: yarn install
@@ -31,24 +31,14 @@ jobs:
       - name: Build
         run: yarn build
 
-      - name: Sync HTML files to S3 bucket
-        id: s3_sync_html
-        uses: haukurh/aws-s3-sync-action@v1.0.1
-        with:
-          directory: dist/
-          s3-bucket: ${{ secrets.AWS_S3_BUCKET }}
-          args: --exclude="*" --include="*/" --include="*.html" --cache-control="public,max-age=86400"
+      - name: Sync HTML files to the S3 bucket
+        run: aws s3 sync public/ s3://${{ vars.AWS_S3_BUCKET }}/ --exclude=* --include=*.html --cache-control="public,max-age=86400"
 
       - name: Sync other files to S3 bucket
-        id: s3_sync_other
-        uses: haukurh/aws-s3-sync-action@v1.0.1
-        with:
-          directory: dist/
-          s3-bucket: ${{ secrets.AWS_S3_BUCKET }}
-          args: --size-only --cache-control="public,max-age=2592000"
+        run: aws s3 sync public/ s3://${{ vars.AWS_S3_BUCKET }}/ --cache-control="public,max-age=2592000" --delete
 
       - name: Update service worker metadata
-        run: aws s3 cp dist/sw.js s3://${{ secrets.AWS_S3_BUCKET }}/sw.js --cache-control="no-cache,no-store"
+        run: aws s3 cp dist/sw.js s3://${{ vars.AWS_S3_BUCKET }}/sw.js --cache-control="no-cache,no-store"
 
       - name: Run CloudFront invalidation
-        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CLOUDFRONT_DIST }} --paths "/*"
+        run: aws cloudfront create-invalidation --distribution-id ${{ vars.AWS_CLOUDFRONT_DIST }} --paths "/*"
