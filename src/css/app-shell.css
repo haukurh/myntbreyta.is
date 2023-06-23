@@ -15,25 +15,20 @@ header {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     color: white;
-    font-weight: bold;
-    font-size: 1.4rem;
-}
-header h1 {
-}
-header label {
-    display: none;
 }
 header select {
     all: unset;
     padding: .3rem 0 .3rem .5rem;
     text-align: right;
     text-align: -webkit-right;
+    font-weight: bold;
+    font-size: 1.4rem;
     max-width: 50vw;
 }
 header select option,
-header select optgroup{
+header select optgroup {
     font-size: initial;
 }
 main {
