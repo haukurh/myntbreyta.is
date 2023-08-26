@@ -50,7 +50,7 @@ footer {
 
 .currency {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 1fr 3em;
     font-size: 1.6rem;
     align-items: center;
     box-sizing: border-box;
@@ -68,11 +68,11 @@ footer {
     all: unset;
     text-align: right;
     appearance: textfield;
-    padding: 1em .4em;
+    padding: 1em .2em;
 }
 
 .currency label {
-    padding: 1em .4em;
+    padding: 1em .4em 1em .2em;
     text-transform: uppercase;
 }
 
