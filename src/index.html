@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="is" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -24,10 +24,10 @@
             </div>
         </div>
         <div class="divider">
-            <div><span id="foreign-label">ISK</span> <span id="foreign-label-description" class="currency-description">(króna, íslensk)</span></div>
+            <div><span class="foreign-label">ISK</span> <span id="foreign-label-description" class="currency-description">(króna, íslensk)</span></div>
             <div class="currency">
                 <input type="text" inputmode="decimal" autocomplete="off" id="foreign" value="100">
-                <label for="foreign">ISK</label>
+                <label for="foreign" class="foreign-label">ISK</label>
             </div>
         </div>
         <div><a href="/settings/">Settings</a></div>
@@ -42,9 +42,7 @@
 <script>
     const selector = document.getElementById('currency');
     const domestic = document.getElementById('domestic');
-    const domesticReadonly = domestic;
     const foreign = document.getElementById('foreign');
-    const foreignReadonly = foreign;
 
     let rate = 1;
 
@@ -70,7 +68,8 @@
         }
         console.log(`Selecting currency ${currencyCode}`);
         localStorage.set(localStorage.keys.CURRENT, currency.CurrencyCode);
-        document.getElementById('foreign-label').innerText = currency.CurrencyCode;
+        document.querySelectorAll('.foreign-label').forEach((el) => el.innerText = currency.CurrencyCode);
+        //document.getElementById('foreign-label').innerText = currency.CurrencyCode;
         document.getElementById('foreign-label-description').innerText = `(${currency.CurrencyDescription})`;
         rate = currency.CurrencyRate;
         updateForeign();
@@ -85,28 +84,60 @@
     }
 
     const getFormValue = (el) => {
-        const value = Number.parseFloat(el.value);
+
+        const value = Number.parseFloat(el.value.toString().replaceAll(',', ''));
         return isNaN(value) ? 0 : value;
     };
 
+    const formatNumb = (number) => {
+        const [int, point] = number.toString().split('.', 2);
+
+        console.log([int, point]);
+    };
+
+    const formatNumber = (number) => {
+        const group = ',';
+        const decimal = '.';
+        const parts = new Intl.NumberFormat('is-IS', {
+            style: 'decimal',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: number < 100 ? 2 : 0,
+            trailingZeroDisplay: 'stripIfInteger'
+        }).formatToParts(number);
+
+        return parts.map((obj) => {
+            if (obj.type === 'group') {
+                obj.value = group;
+            }
+            if (obj.type === 'decimal') {
+                obj.value = decimal;
+            }
+            return obj.value;
+        }).join('');
+    };
+
     const updateFront = () => {
+        console.log(
+            new Intl.NumberFormat('is', {}).resolvedOptions()
+        );
         const domesticValue = getFormValue(domestic);
-        domesticReadonly.innerText = new Intl.NumberFormat('is-IS', { style: 'currency', currency: 'ISK', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(domesticValue);
-        const currencyCode = getUserSelectedCurrency();
+        domestic.value = formatNumber(domesticValue);
         const foreignValue = getFormValue(foreign);
-        foreignReadonly.innerText = new Intl.NumberFormat('is-IS', { style: 'currency', currency: currencyCode, minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(foreignValue);
+        foreign.value = formatNumber(foreignValue);
     };
 
     const updateForeign = () => {
         console.log('Updating foreign');
         const value = getFormValue(domestic);
         foreign.value = (value / getCurrentRate()).toFixed(2);
+        updateFront();
     };
 
     const updateDomestic = () => {
         console.log('Updating domestic');
         const value = getFormValue(foreign);
         domestic.value = (value * getCurrentRate()).toFixed(0);
+        updateFront();
     };
 
     const _getUniqueCurrencies = (needle, haystack) => {
@@ -156,15 +187,6 @@
     domestic.addEventListener('input', updateForeign);
     foreign.addEventListener('change', updateDomestic);
     foreign.addEventListener('input', updateDomestic);
-
-    foreignReadonly.addEventListener('click', () => {
-        foreign.focus();
-        foreign.value = parseInt(foreign.value);
-    });
-    domesticReadonly.addEventListener('click', () => {
-        domestic.focus();
-        domestic.value = parseInt(domestic.value);
-    });
 
     // If we already have the currencies in storage, then get them as quickly as possible
     const curr = localStorage.get(localStorage.keys.CURRENCIES);
