@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Currency converter</title>
+    <title>Gengi gjaldmiðla | Stillingar</title>
     <link rel="preload" href="/js/main.js" as="script">
     <link href="/css/app-shell.css" media="all" rel="stylesheet preload" as="style" type="text/css">
     <link rel="prefetch" href="/">
@@ -11,26 +11,26 @@
 <body>
 
 <header>
-    <h1>Settings</h1>
+    <h1>Stillingar</h1>
 </header>
 
 <main>
     <form>
         <div class="divider">
-        <label for="currencies">Select currencies</label>
+        <label for="currencies">Velja gjaldmiðla</label>
         <select id="currencies" multiple></select>
         </div>
-        <button type="button" id="fetch">Fetch currencies</button>
-        <button type="button" id="resetPreferences">Reset preferences</button>
-        <button type="button" id="resetEverything">Reset everything</button>
+        <button type="button" id="fetch">Sækja gengi</button>
+        <button type="button" id="resetPreferences">Hreinsa út notendastillingar</button>
+        <button type="button" id="resetEverything">Hreinsa út allt</button>
     </form>
     <div>
-        <a href="/">Go back</a>
+        <a href="/">Til baka</a>
     </div>
 </main>
 
 <footer>
-    Updated at: <span id="currencyDate">unknown</span>
+    Gengi uppfært: <span id="currencyDate">óþekkt</span>
 </footer>
 
 <script src="/js/main.js" type="application/javascript"></script>
@@ -48,7 +48,7 @@
         const selected = getUserSelectedCurrencies();
         console.log({ selected });
         const popularGroup = document.createElement('optgroup');
-        popularGroup.label = 'Popular';
+        popularGroup.label = 'Vinsælt';
         console.log({
             options,
             selected,
@@ -64,7 +64,7 @@
         });
         selector.appendChild(popularGroup);
         const byCurrencyGroup = document.createElement('optgroup');
-        byCurrencyGroup.label = 'By currency';
+        byCurrencyGroup.label = 'Eftir gjaldmiðli';
         options.byCurrency.forEach((currency) => {
             const option = document.createElement('option');
             option.value = currency.CurrencyCode;
@@ -76,11 +76,11 @@
         });
         selector.appendChild(byCurrencyGroup);
         const byCountryGroup = document.createElement('optgroup');
-        byCountryGroup.label = 'By country';
+        byCountryGroup.label = 'Eftir landi';
         options.byCountry.forEach((currency) => {
             const option = document.createElement('option');
             option.value = currency.CurrencyCode;
-            option.innerText = currency.CountryEnglish;
+            option.innerText = currency.Country;
             byCountryGroup.appendChild(option);
         });
         selector.appendChild(byCountryGroup);
