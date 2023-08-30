@@ -57,7 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- site height in mobile
+- Site height in mobile
 
 ## [v0.0.4] - 2022-07-23
 
