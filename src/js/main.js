@@ -64,6 +64,7 @@ const localStorage = {
         USER_SELECTED_CURRENCIES: 'userSelectedCurrencies',
         CURRENCIES: 'currencies',
         CURRENT: 'current',
+        NUMBER_FORMAT: 'numberFormat'
     },
 };
 

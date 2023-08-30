@@ -44,6 +44,12 @@
     const domestic = document.getElementById('domestic');
     const foreign = document.getElementById('foreign');
 
+    const NUMBER_FORMAT_1 = 1;
+    const NUMBER_FORMAT_2 = 2;
+    const numberFormat = localStorage.get(localStorage.keys.NUMBER_FORMAT) !== NUMBER_FORMAT_2 ? NUMBER_FORMAT_1 : NUMBER_FORMAT_2;
+    const group = numberFormat === NUMBER_FORMAT_1 ? '.' : ',';
+    const decimal = numberFormat === NUMBER_FORMAT_1 ? ',' : '.';
+
     let rate = 1;
 
     const setSelected = async (currencyCode) => {
@@ -84,8 +90,7 @@
     }
 
     const getFormValue = (el) => {
-
-        const value = Number.parseFloat(el.value.toString().replaceAll(',', ''));
+        const value = Number.parseFloat(el.value.toString().replaceAll(group, '').replaceAll(',', '.'));
         return isNaN(value) ? 0 : value;
     };
 
@@ -96,24 +101,23 @@
     };
 
     const formatNumber = (number) => {
-        const group = ',';
-        const decimal = '.';
-        const parts = new Intl.NumberFormat('is-IS', {
+        return new Intl.NumberFormat('is-IS', {
             style: 'decimal',
             minimumFractionDigits: 0,
             maximumFractionDigits: number < 100 ? 2 : 0,
             trailingZeroDisplay: 'stripIfInteger'
-        }).formatToParts(number);
-
-        return parts.map((obj) => {
-            if (obj.type === 'group') {
-                obj.value = group;
-            }
-            if (obj.type === 'decimal') {
-                obj.value = decimal;
-            }
-            return obj.value;
-        }).join('');
+        })
+            .formatToParts(number)
+            .map((obj) => {
+                if (obj.type === 'group') {
+                    obj.value = group;
+                }
+                if (obj.type === 'decimal') {
+                    obj.value = decimal;
+                }
+                return obj.value;
+            })
+            .join('');
     };
 
     const updateFront = () => {
@@ -129,14 +133,14 @@
     const updateForeign = () => {
         console.log('Updating foreign');
         const value = getFormValue(domestic);
-        foreign.value = (value / getCurrentRate()).toFixed(2);
+        foreign.value = formatNumber((value / rate).toFixed(2));
         updateFront();
     };
 
     const updateDomestic = () => {
         console.log('Updating domestic');
         const value = getFormValue(foreign);
-        domestic.value = (value * getCurrentRate()).toFixed(0);
+        domestic.value = formatNumber((value * rate).toFixed(0));
         updateFront();
     };
 

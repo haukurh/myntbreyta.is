@@ -15,11 +15,16 @@
 </header>
 
 <main>
-    <form>
+    <form id="settings">
         <div class="divider">
         <label for="currencies">Velja gjaldmiðla</label>
         <select id="currencies" multiple></select>
         </div>
+        <fieldset>
+            <legend>Númerasnið:</legend>
+            <div><input type="radio" name="numberFormat" id="numberFormat1" value="1" checked> <label for="numberFormat1">1.999,00</label></div>
+            <div><input type="radio" name="numberFormat" id="numberFormat2" value="2"> <label for="numberFormat2">1,999.00</label></div>
+        </fieldset>
         <button type="button" id="fetch">Sækja gengi</button>
         <button type="button" id="resetPreferences">Hreinsa út notendastillingar</button>
         <button type="button" id="resetEverything">Hreinsa út allt</button>
@@ -43,7 +48,21 @@
     };
 
     const selector = document.getElementById('currencies');
+    const settingsForm = document.getElementById('settings');
+
+    const selectNumberFormat = () => {
+        const format = localStorage.get(localStorage.keys.NUMBER_FORMAT)
+            ? localStorage.get(localStorage.keys.NUMBER_FORMAT)
+            : 1;
+
+        const radioBtnEl = format === 2
+            ? 'numberFormat2'
+            : 'numberFormat1';
+        document.getElementById(radioBtnEl).checked = true;
+    };
+
     const updateSelector = () => {
+        selectNumberFormat();
         selector.innerHTML = '';
         const selected = getUserSelectedCurrencies();
         console.log({ selected });
@@ -176,6 +195,14 @@
         localStorage.clear();
         updateSelector();
     });
+
+    settingsForm.addEventListener('change', () => {
+        const data = new FormData(settingsForm);
+        const numberFormat = parseInt(data.get('numberFormat').toString());
+        localStorage.set(localStorage.keys.NUMBER_FORMAT, numberFormat);
+    });
+
+
 
     const selectBox = document.getElementById('currencies');
     selectBox.addEventListener('change', (e) => {
