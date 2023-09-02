@@ -1,9 +1,9 @@
 {
-  "name": "currency.haukurh.dev",
+  "name": "myntbreyta.is",
   "version": "0.0.9",
   "description": "A PWA that provides currency conversion with ISK as the base currency",
   "main": "index.js",
-  "repository": "git@github.com:haukurh/currency.haukurh.dev.git",
+  "repository": "git@github.com:haukurh/myntbreyta.is.git",
   "author": "Haukur Hlöðversson <haukur@haukurh.is>",
   "license": "MIT",
   "scripts": {
