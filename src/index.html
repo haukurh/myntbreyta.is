@@ -59,9 +59,9 @@
             console.warn('No currencies found, when selecting');
             return;
         }
-        for (const currenciesKey in currencies.rates) {
-            if (currencies.rates[currenciesKey].CurrencyCode === currencyCode) {
-                currency = currencies.rates[currenciesKey];
+        for (const currencyKey in currencies) {
+            if (currencyKey === currencyCode) {
+                currency = currencyKey;
                 break;
             }
         }
@@ -73,11 +73,11 @@
             return;
         }
         console.log(`Selecting currency ${currencyCode}`);
-        db.set(db.keys.CURRENT, currency.CurrencyCode);
-        document.querySelectorAll('.foreign-label').forEach((el) => el.innerText = currency.CurrencyCode);
+        db.set(db.keys.CURRENT, currency);
+        document.querySelectorAll('.foreign-label').forEach((el) => el.innerText = currency);
         //document.getElementById('foreign-label').innerText = currency.CurrencyCode;
-        document.getElementById('foreign-label-description').innerText = `(${currency.CurrencyDescription})`;
-        rate = currency.CurrencyRate;
+        document.getElementById('foreign-label-description').innerText = `(${currency})`;
+        rate = currencies[currency];
         updateForeign();
     };
 
@@ -150,7 +150,7 @@
         const userSelectedCurrencies = getUserSelectedCurrencies();
         const selector = document.getElementById('currency');
         selector.innerHTML = '';
-        Object.keys(currencies)
+        userSelectedCurrencies
             .forEach((currencyCode) => {
                 const option = document.createElement('option');
                 option.value = currencyCode;
