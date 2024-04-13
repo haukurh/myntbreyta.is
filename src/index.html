@@ -46,7 +46,7 @@
 
     const NUMBER_FORMAT_1 = 1;
     const NUMBER_FORMAT_2 = 2;
-    const numberFormat = localStorage.get(localStorage.keys.NUMBER_FORMAT) !== NUMBER_FORMAT_2 ? NUMBER_FORMAT_1 : NUMBER_FORMAT_2;
+    const numberFormat = db.get(db.keys.NUMBER_FORMAT) !== NUMBER_FORMAT_2 ? NUMBER_FORMAT_1 : NUMBER_FORMAT_2;
     const group = numberFormat === NUMBER_FORMAT_1 ? '.' : ',';
     const decimal = numberFormat === NUMBER_FORMAT_1 ? ',' : '.';
 
@@ -69,11 +69,11 @@
             console.warn('Unable to find selected currency, when selecting', {
                 currencyCode,
             });
-            localStorage.remove(localStorage.keys.CURRENT);
+            db.remove(db.keys.CURRENT);
             return;
         }
         console.log(`Selecting currency ${currencyCode}`);
-        localStorage.set(localStorage.keys.CURRENT, currency.CurrencyCode);
+        db.set(db.keys.CURRENT, currency.CurrencyCode);
         document.querySelectorAll('.foreign-label').forEach((el) => el.innerText = currency.CurrencyCode);
         //document.getElementById('foreign-label').innerText = currency.CurrencyCode;
         document.getElementById('foreign-label-description').innerText = `(${currency.CurrencyDescription})`;
@@ -193,7 +193,7 @@
     foreign.addEventListener('input', updateDomestic);
 
     // If we already have the currencies in storage, then get them as quickly as possible
-    const curr = localStorage.get(localStorage.keys.CURRENCIES);
+    const curr = db.get(db.keys.CURRENCIES);
     if (curr) {
         updateSelector(curr);
     }

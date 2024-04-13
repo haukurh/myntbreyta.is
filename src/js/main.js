@@ -55,7 +55,7 @@ registerServiceWorker();
 
 const popularList = ['AUD', 'USD', 'GBP', 'SEK', 'EUR', 'THB'];
 
-const localStorage = {
+const db = {
     get: (key) => JSON.parse(window.localStorage.getItem(key)),
     set: (key, value) => window.localStorage.setItem(key, JSON.stringify(value)),
     remove: (key) => window.localStorage.removeItem(key),
@@ -64,19 +64,20 @@ const localStorage = {
         USER_SELECTED_CURRENCIES: 'userSelectedCurrencies',
         CURRENCIES: 'currencies',
         CURRENT: 'current',
-        NUMBER_FORMAT: 'numberFormat'
+        UPDATED_AT: 'updatedAt',
+        NUMBER_FORMAT: 'numberFormat',
     },
 };
 
 const getUserSelectedCurrencies = () => {
-    const key = localStorage.keys.USER_SELECTED_CURRENCIES;
-    const selected = localStorage.get(key);
+    const key = db.keys.USER_SELECTED_CURRENCIES;
+    const selected = db.get(key);
     if (!selected) {
-        localStorage.set(key, popularList);
+        db.set(key, popularList);
         return popularList;
     }
     if (!Array.isArray(selected)) {
-        localStorage.remove(key);
+        db.remove(key);
         return getUserSelectedCurrencies();
     }
     return selected;
@@ -84,15 +85,15 @@ const getUserSelectedCurrencies = () => {
 
 const getUserSelectedCurrency = () => {
     const userSelectedCurrencies = getUserSelectedCurrencies();
-    const current = localStorage.get(localStorage.keys.CURRENT);
+    const current = db.get(db.keys.CURRENT);
     if (!current) {
         console.log('No currency selected for user, setting default');
-        localStorage.set(localStorage.keys.CURRENT, userSelectedCurrencies[0]);
+        db.set(db.keys.CURRENT, userSelectedCurrencies[0]);
         return userSelectedCurrencies[0];
     }
     if (!userSelectedCurrencies.includes(current)) {
         console.log('Selected currency not available, resetting to first as default');
-        localStorage.set(localStorage.keys.CURRENT, userSelectedCurrencies[0]);
+        db.set(db.keys.CURRENT, userSelectedCurrencies[0]);
         return userSelectedCurrencies[0];
     }
     return current;
@@ -120,14 +121,14 @@ const updateCurrencies = async (force = false) => {
 };
 
 const _fetchCurrencies = async () => {
-    const key = localStorage.keys.CURRENCIES;
-    const stored = localStorage.get(key);
+    const key = db.keys.CURRENCIES;
+    const stored = db.get(key);
     if (stored) {
         return stored;
     }
-    console.log('data not set in localStorage, fetching for the first time...');
+    console.log('currencies not set in database, fetching for the first time...');
     await updateCurrencies();
-    return localStorage.get(key);
+    return db.get(key);
 };
 
 const getCurrencies = async (fetchIfStale = true) => {
