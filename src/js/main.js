@@ -115,8 +115,11 @@ const updateCurrencies = async (force = false) => {
         options.headers['cache-control'] = 'no-cache';
     }
     await fetch('/currency-rates.json', options)
-        .then((response) => response.json())
-        .then((json) => localStorage.set(localStorage.keys.CURRENCIES, json))
+        .then((response) => {
+          db.set(db.keys.UPDATED_AT, response.headers.get('last-modified'));
+          return response.json();
+        })
+        .then((json) => db.set(db.keys.CURRENCIES, json))
         .catch((error) => console.error('Unable to fetch currency data', { error }));
 };
 
