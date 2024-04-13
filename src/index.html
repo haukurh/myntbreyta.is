@@ -144,26 +144,18 @@
         updateFront();
     };
 
-    const _getUniqueCurrencies = (needle, haystack) => {
-        const pool = {};
-        haystack
-            .filter((rate) => needle.includes(rate.CurrencyCode))
-            .forEach((rate) => pool[rate.CurrencyCode] = rate);
-        return Object.values(pool);
-    };
-
     const updateSelector = (currencies) => {
         console.log('Running updateSelector');
         const current = getUserSelectedCurrency();
         const userSelectedCurrencies = getUserSelectedCurrencies();
         const selector = document.getElementById('currency');
         selector.innerHTML = '';
-        _getUniqueCurrencies(userSelectedCurrencies, currencies.rates)
-            .forEach((rate) => {
+        Object.keys(currencies)
+            .forEach((currencyCode) => {
                 const option = document.createElement('option');
-                option.value = rate.CurrencyCode;
-                option.innerText = rate.CurrencyCode;
-                if (rate.CurrencyCode === current) {
+                option.value = currencyCode;
+                option.innerText = currencyCode;
+                if (currencyCode === current) {
                     option.selected = true;
                     setSelected(current);
                 }
