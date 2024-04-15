@@ -1,24 +1,38 @@
+const version = 'v0.0.11';
+
 const addResourcesToCache = async (resources) => {
-    const cache = await caches.open('v1');
+    const cache = await caches.open(version);
     await cache.addAll(resources);
 };
 
 const putInCache = async (request, response) => {
-    const cache = await caches.open('v1');
+    const cache = await caches.open(version);
     await cache.put(request, response);
 };
 
 const cacheFirst = async ({ request, preloadResponsePromise, fallbackUrl }) => {
     // First try to get the resource from the cache
-    const responseFromCache = await caches.match(request);
+    const cache = await caches.open(version);
+    const responseFromCache = await cache.match(request, { ignoreSearch: true });
+
     if (responseFromCache && request.headers.get('cache-control') !== 'no-cache') {
+      const expiresHeader = responseFromCache.headers.get('expires');
+      if (expiresHeader === null) {
+        // console.log('No expire header, serving from cache');
         return responseFromCache;
+      }
+
+      if ((new Date()) < (new Date(expiresHeader))) {
+        // console.log('Cache is still valid');
+        return responseFromCache;
+      }
+      console.log('Cache has expired fetching, getting from network');
     }
 
     // Next try to use the preloaded response, if it's there
     const preloadResponse = await preloadResponsePromise;
     if (preloadResponse) {
-        console.info('using preload response', preloadResponse);
+        console.info('using preload response');
         putInCache(request, preloadResponse.clone());
         return preloadResponse;
     }
@@ -59,9 +73,7 @@ self.addEventListener('install', (event) => {
         addResourcesToCache([
             '/',
             '/index.html',
-            '/css/app-shell.min.css',
-            '/js/main.min.js',
-            '/settings/index.html',
+            '/currency-rates.json',
         ])
     );
 });
