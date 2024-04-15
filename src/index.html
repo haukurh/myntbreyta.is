@@ -38,6 +38,7 @@
 
 <script src="/js/main.js" type="application/javascript"></script>
 <script>
+
     const selector = document.getElementById('currency');
     const domestic = document.getElementById('domestic');
     const foreign = document.getElementById('foreign');
@@ -49,27 +50,16 @@
     const decimal = numberFormat === NUMBER_FORMAT_1 ? ',' : '.';
 
     let rate = 1;
+    let currencies = {};
+    let currency = 'ISK';
 
     const setSelected = async (currencyCode) => {
-        let currency = null;
-        const currencies = await _fetchCurrencies();
-        if (!currencies) {
-            console.warn('No currencies found, when selecting');
-            return;
-        }
-        for (const currencyKey in currencies) {
-            if (currencyKey === currencyCode) {
-                currency = currencyKey;
-                break;
-            }
-        }
-        if (!currency) {
-            console.warn('Unable to find selected currency, when selecting', {
-                currencyCode,
-            });
+        if (!currencyCode in currencies) {
+            console.warn('Unable to find selected currency, when selecting', { currencyCode });
             db.remove(db.keys.CURRENT);
             return;
         }
+        currency = currencyCode;
         console.log(`Selecting currency ${currencyCode}`);
         db.set(db.keys.CURRENT, currency);
         document.querySelectorAll('.foreign-label').forEach((el) => el.innerText = currency);
@@ -90,12 +80,6 @@
     const getFormValue = (el) => {
         const value = Number.parseFloat(el.value.toString().replaceAll(group, '').replaceAll(',', '.'));
         return isNaN(value) ? 0 : value;
-    };
-
-    const formatNumb = (number) => {
-        const [int, point] = number.toString().split('.', 2);
-
-        console.log([int, point]);
     };
 
     const formatNumber = (number) => {
@@ -119,9 +103,6 @@
     };
 
     const updateFront = () => {
-        console.log(
-            new Intl.NumberFormat('is', {}).resolvedOptions()
-        );
         const domesticValue = getFormValue(domestic);
         domestic.value = formatNumber(domesticValue);
         const foreignValue = getFormValue(foreign);
@@ -162,36 +143,25 @@
         return currencies;
     }
 
-    const updateCurrencyDateInfo = () => {
-        const modifiedAtString = db.get(db.keys.UPDATED_AT);
-        if (!modifiedAtString) {
-            return;
-        }
-        const el = document.getElementById('currencyDate');
-        const modifiedAt = new Date(modifiedAtString);
-        el.innerText = (new Intl.DateTimeFormat(['is-IS', 'en-GB'], { dateStyle: 'long' }).format(modifiedAt));
-    };
-
-    const updateUI = (currencies) => {
-        updateSelector(currencies);
-        updateCurrencyDateInfo(currencies);
-    };
-
     selector.addEventListener('change', (e) => setSelected(e.target.value));
     domestic.addEventListener('change', updateForeign);
     domestic.addEventListener('input', updateForeign);
     foreign.addEventListener('change', updateDomestic);
     foreign.addEventListener('input', updateDomestic);
 
-    // If we already have the currencies in storage, then get them as quickly as possible
-    const curr = db.get(db.keys.CURRENCIES);
-    if (curr) {
-        updateSelector(curr);
-    }
-
-    getCurrencies()
-        .then((currencies) => updateUI(currencies))
-        .then(() => updateForeign());
+    fetch('/currency-rates.json')
+      .then((response) => {
+        const lastModified = response.headers.get('last-modified');
+        const el = document.getElementById('currencyDate');
+        const modifiedAt = new Date(lastModified);
+        el.innerText = (new Intl.DateTimeFormat(['is-IS', 'en-GB'], { dateStyle: 'long' }).format(modifiedAt));
+        return response.json();
+      })
+      .then((response) => {
+        currencies = response;
+        updateSelector();
+        updateForeign();
+      });
 
 </script>
 
