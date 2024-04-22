@@ -1,87 +1,102 @@
-html, body {
-    min-height: 100vh;
-    min-height: -webkit-fill-available;
-    font-family: sans-serif;
+html,
+body {
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  font-family: sans-serif;
 }
-html, body, div, header, main {
-    margin: 0;
-    padding: 0;
+
+html,
+body,
+div,
+header,
+main {
+  margin: 0;
+  padding: 0;
 }
+
 header {
-    box-sizing: border-box;
-    background-color: darkseagreen;
-    padding: 1rem 2rem;
-    height: 4rem;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-    color: white;
+  box-sizing: border-box;
+  background-color: darkseagreen;
+  padding: 1rem 2rem;
+  height: 4rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  color: white;
 }
 
 .flex-end {
-    justify-content: flex-end;
+  justify-content: flex-end;
 }
 
 header select {
-    all: unset;
-    padding: .3rem 0 .3rem .5rem;
-    text-align: right;
-    text-align: -webkit-right;
-    font-weight: bold;
-    font-size: 1.4rem;
-    max-width: 50vw;
+  all: unset;
+  padding: 0.3rem 0 0.3rem 0.5rem;
+  text-align: right;
+  text-align: -webkit-right;
+  font-weight: bold;
+  font-size: 1.4rem;
+  max-width: 50vw;
 }
+
 header select option,
 header select optgroup {
-    font-size: initial;
+  font-size: initial;
 }
+
 main {
-    padding: 1rem 2rem;
+  padding: 1rem 2rem;
 }
+
 footer {
-    padding: 2rem 1rem;
-    text-align: center;
+  padding: 2rem 1rem;
+  text-align: center;
 }
+
 #currencyDate {
-    font-style: italic;
+  font-style: italic;
 }
+
 .divider {
-    display: flex;
-    flex-direction: column;
-    gap: .6rem;
-    margin: .6rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 0.6rem 0;
 }
 
 .currency {
-    display: grid;
-    grid-template-columns: 1fr 3em;
-    font-size: 1.6rem;
-    align-items: center;
-    box-sizing: border-box;
-    text-align: right;
-    border-width: 1px;
-    border-style: solid;
-    border-color: rgba(0, 0, 0, 0);
-    transition-duration: 200ms;
-    transition-property: border-bottom-color, border-top-color, border-right-color, border-left-color;
+  display: grid;
+  grid-template-columns: 1fr 3em;
+  font-size: 1.6rem;
+  align-items: center;
+  box-sizing: border-box;
+  text-align: right;
+  border-width: 1px;
+  border-style: solid;
+  border-color: rgba(0, 0, 0, 0);
+  transition-duration: 200ms;
+  transition-property: border-bottom-color, border-top-color, border-right-color,
+    border-left-color;
 }
+
 .currency:focus-within {
-    border: 1px solid rgba(3, 49, 210, 100);
+  border: 1px solid rgba(3, 49, 210, 100);
 }
+
 .currency input {
-    all: unset;
-    text-align: right;
-    appearance: textfield;
-    padding: 1em .2em;
+  all: unset;
+  text-align: right;
+  appearance: textfield;
+  padding: 1em 0.2em;
 }
 
 .currency label {
-    padding: 1em .4em 1em .2em;
-    text-transform: uppercase;
+  padding: 1em 0.4em 1em 0.2em;
+  text-transform: uppercase;
 }
 
 .currency-description {
-    font-size: .9em;
-    font-style: italic;
+  font-size: 0.9em;
+  font-style: italic;
 }
