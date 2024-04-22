@@ -16,14 +16,19 @@ main {
 
 header {
   box-sizing: border-box;
-  background-color: darkseagreen;
+  background-color: #4E7E4E;
   padding: 1rem 2rem;
   height: 4rem;
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   color: white;
+  font-size: 1.4rem;
+}
+
+header h1 {
+  font-size: inherit;
 }
 
 .flex-end {
@@ -36,7 +41,7 @@ header select {
   text-align: right;
   text-align: -webkit-right;
   font-weight: bold;
-  font-size: 1.4rem;
+  font-size: inherit;
   max-width: 50vw;
 }
 
