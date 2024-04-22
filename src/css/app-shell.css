@@ -89,6 +89,8 @@ footer {
   text-align: right;
   appearance: textfield;
   padding: 1em 0.2em;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .currency label {
