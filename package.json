@@ -7,8 +7,8 @@
   "author": "Haukur Hlöðversson <haukur@haukurh.is>",
   "license": "MIT",
   "scripts": {
-    "start": "gulp",
-    "build": "gulp build"
+    "build": "gulp build",
+    "lint": "prettier -w src/"
   },
   "devDependencies": {
     "csso": "^5.0.3",
