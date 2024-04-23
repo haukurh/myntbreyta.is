@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.0.12] - 2024-04-22
+
+### Added
+
+- Added prettier to project for code formatting
+- Meta description to project for SEO
+
+### Changed
+
+- Theme color, because of color contrast
+- Display app name in header
+- actions in GitHub workflow
+- Page title to app name
+
+### Fixed
+
+- Input overflow on Android #35
+
+## [v0.0.11] - 2024-04-16
+
+### Added 
+
+- Have service worker honor 'expires' headers from origin
+- Create a custom cache store for each app version
+
+### Removed
+
+- Logic within app storing currency rates, now everything relies on browser cache
+
 ## [v0.0.10] - 2024-04-13
 
 ### Added
