@@ -50,7 +50,7 @@ const unregisterServiceWorker = async () => {
 
 registerServiceWorker();
 
-const popularList = ['AUD', 'USD', 'GBP', 'SEK', 'EUR', 'THB'];
+const popularList = ['EUR', 'USD', 'GBP', 'SEK', 'AUD', 'THB'];
 
 const db = {
   get: (key) => JSON.parse(window.localStorage.getItem(key)),
