@@ -1,11 +1,11 @@
 import gulp from 'gulp';
 import rename from 'gulp-rename';
 import replace from 'gulp-replace';
-import through2 from 'through2';
 import htmlJs from 'html-minifier';
 import * as cssJs from 'csso';
 import jsJs from 'uglify-js';
 import fs from 'node:fs';
+import { Transform } from 'node:stream';
 
 const distFolder = 'dist/';
 
@@ -36,41 +36,58 @@ const handleMinifiedUrls = (data) => {
   return data.replace('.css"', '.min.css"').replace('.js"', '.min.js"');
 };
 
+const minifyHTML = new Transform({
+  objectMode: true,
+  transform(file, encoding, callback) {
+    if (file.isBuffer()) {
+      const minifiedHTML = htmlJs.minify(file.contents.toString(), {
+        collapseWhitespace: true,
+        decodeEntities: true,
+        html5: true,
+        minifyCSS: true,
+        minifyJS: true,
+        removeComments: true,
+      });
+      file.contents = Buffer.from(minifiedHTML);
+    }
+    callback(null, file);
+  },
+});
+
+const minifyJS = new Transform({
+  objectMode: true,
+  transform(file, encoding, callback) {
+    if (file.isBuffer()) {
+      const minifiedJs = jsJs.minify(file.contents.toString());
+      file.contents = Buffer.from(minifiedJs.code);
+    }
+    callback(null, file);
+  },
+});
+
+const minifyCSS = new Transform({
+  objectMode: true,
+  transform(file, encoding, callback) {
+    if (file.isBuffer()) {
+      const css = cssJs.minify(file.contents.toString()).css;
+      file.contents = Buffer.from(css);
+    }
+    callback(null, file);
+  },
+});
+
 function html() {
   return gulp
     .src('src/**/*.html')
     .pipe(replace(/(href|src)="(.+?(\.js|\.css))"/g, handleMinifiedUrls))
-    .pipe(
-      through2.obj(function (file, _, cb) {
-        if (file.isBuffer()) {
-          const minifiedHTML = htmlJs.minify(file.contents.toString(), {
-            collapseWhitespace: true,
-            decodeEntities: true,
-            html5: true,
-            minifyCSS: true,
-            minifyJS: true,
-            removeComments: true,
-          });
-          file.contents = Buffer.from(minifiedHTML);
-        }
-        cb(null, file);
-      }),
-    )
+    .pipe(minifyHTML)
     .pipe(gulp.dest(distFolder));
 }
 
 function javascript() {
   return gulp
     .src(['src/**/*.js', '!src/sw.js'])
-    .pipe(
-      through2.obj(function (file, _, cb) {
-        if (file.isBuffer()) {
-          const minifiedJs = jsJs.minify(file.contents.toString());
-          file.contents = Buffer.from(minifiedJs.code);
-        }
-        cb(null, file);
-      }),
-    )
+    .pipe(minifyJS)
     .pipe(rename({ extname: '.min.js' }))
     .pipe(gulp.dest(distFolder));
 }
@@ -78,15 +95,7 @@ function javascript() {
 function css() {
   return gulp
     .src('src/**/*.css')
-    .pipe(
-      through2.obj(function (file, _, cb) {
-        if (file.isBuffer()) {
-          const css = cssJs.minify(file.contents.toString()).css;
-          file.contents = Buffer.from(css);
-        }
-        cb(null, file);
-      }),
-    )
+    .pipe(minifyCSS)
     .pipe(rename({ extname: '.min.css' }))
     .pipe(gulp.dest(distFolder));
 }
