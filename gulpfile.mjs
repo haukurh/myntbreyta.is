@@ -5,13 +5,12 @@ import through2 from 'through2';
 import htmlJs from 'html-minifier';
 import * as cssJs from 'csso';
 import jsJs from 'uglify-js';
-import { deleteAsync } from 'del';
 import fs from 'node:fs';
 
 const distFolder = 'dist/';
 
 function clean(cb) {
-  deleteAsync(distFolder);
+  fs.rmSync(distFolder, { recursive: true });
   cb();
 }
 
