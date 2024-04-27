@@ -1,24 +1,24 @@
-const { watch, series, src, dest } = require('gulp');
-const rename = require('gulp-rename');
-const replace = require('gulp-replace');
-const through2 = require('through2');
-const htmlJs = require('html-minifier');
-const cssJs = require('csso');
-const jsJs = require('uglify-js');
-const del = require('del');
-const fs = require('fs');
+import gulp from 'gulp';
+import rename from 'gulp-rename';
+import replace from 'gulp-replace';
+import through2 from 'through2';
+import htmlJs from 'html-minifier';
+import * as cssJs from 'csso';
+import jsJs from 'uglify-js';
+import { deleteAsync } from 'del';
+import fs from 'node:fs';
 
 const distFolder = 'dist/';
 
 function clean(cb) {
-  del.sync(distFolder);
+  deleteAsync(distFolder);
   cb();
 }
 
 function staticFiles(cb) {
-  src('./src/**/*.ico').pipe(dest(distFolder));
-  src('./src/**/*.json').pipe(dest(distFolder));
-  src('./src/sw.js').pipe(dest(distFolder));
+  gulp.src('./src/**/*.ico').pipe(gulp.dest(distFolder));
+  gulp.src('./src/**/*.json').pipe(gulp.dest(distFolder));
+  gulp.src('./src/sw.js').pipe(gulp.dest(distFolder));
   cb();
 }
 
@@ -37,8 +37,9 @@ const handleMinifiedUrls = (data) => {
   return data.replace('.css"', '.min.css"').replace('.js"', '.min.js"');
 };
 
-function html(cb) {
-  src('src/**/*.html')
+function html() {
+  return gulp
+    .src('src/**/*.html')
     .pipe(replace(/(href|src)="(.+?(\.js|\.css))"/g, handleMinifiedUrls))
     .pipe(
       through2.obj(function (file, _, cb) {
@@ -56,12 +57,12 @@ function html(cb) {
         cb(null, file);
       }),
     )
-    .pipe(dest(distFolder));
-  cb();
+    .pipe(gulp.dest(distFolder));
 }
 
-function javascript(cb) {
-  src(['src/**/*.js', '!src/sw.js'])
+function javascript() {
+  return gulp
+    .src(['src/**/*.js', '!src/sw.js'])
     .pipe(
       through2.obj(function (file, _, cb) {
         if (file.isBuffer()) {
@@ -72,12 +73,12 @@ function javascript(cb) {
       }),
     )
     .pipe(rename({ extname: '.min.js' }))
-    .pipe(dest(distFolder));
-  cb();
+    .pipe(gulp.dest(distFolder));
 }
 
-function css(cb) {
-  src('src/**/*.css')
+function css() {
+  return gulp
+    .src('src/**/*.css')
     .pipe(
       through2.obj(function (file, _, cb) {
         if (file.isBuffer()) {
@@ -88,17 +89,16 @@ function css(cb) {
       }),
     )
     .pipe(rename({ extname: '.min.css' }))
-    .pipe(dest(distFolder));
-  cb();
+    .pipe(gulp.dest(distFolder));
 }
 
-exports.build = series(clean, staticFiles, html, css, javascript);
+gulp.task('build', gulp.series(clean, staticFiles, html, css, javascript));
 
-exports.default = function (cb) {
+export default (cb) => {
   clean(() => {});
   staticFiles(() => {});
-  watch('src/**/*.css', { ignoreInitial: false }, css);
-  watch('src/**/*.html', { ignoreInitial: false }, html);
-  watch('src/**/*.js', { ignoreInitial: false }, javascript);
+  gulp.watch('src/**/*.css', { ignoreInitial: false }, css);
+  gulp.watch('src/**/*.html', { ignoreInitial: false }, html);
+  gulp.watch('src/**/*.js', { ignoreInitial: false }, javascript);
   cb();
 };
