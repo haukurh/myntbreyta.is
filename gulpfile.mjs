@@ -1,11 +1,12 @@
 import gulp from 'gulp';
-import rename from 'gulp-rename';
 import replace from 'gulp-replace';
 import htmlJs from 'html-minifier';
 import * as cssJs from 'csso';
 import jsJs from 'uglify-js';
 import fs from 'node:fs';
 import { Transform } from 'node:stream';
+import path from 'node:path';
+import crypto from 'node:crypto';
 
 const distFolder = 'dist/';
 
@@ -35,6 +36,19 @@ const handleMinifiedUrls = (data) => {
 
   return data.replace('.css"', '.min.css"').replace('.js"', '.min.js"');
 };
+
+const revision = new Transform({
+  objectMode: true,
+  transform(file, encoding, callback) {
+    if (file.isBuffer()) {
+      const hash = crypto.createHash('md5').update(file.contents.toString()).digest('hex');
+      const ext = path.extname(file.path);
+      file.path = file.path.substring(0, file.path.length - ext.length) + '-' + hash.substring(0, 8) + ext;
+    }
+    callback(null, file);
+  },
+});
+
 
 const minifyHTML = new Transform({
   objectMode: true,
@@ -88,7 +102,7 @@ function javascript() {
   return gulp
     .src(['src/**/*.js', '!src/sw.js'])
     .pipe(minifyJS)
-    .pipe(rename({ extname: '.min.js' }))
+    .pipe(revision)
     .pipe(gulp.dest(distFolder));
 }
 
@@ -96,7 +110,7 @@ function css() {
   return gulp
     .src('src/**/*.css')
     .pipe(minifyCSS)
-    .pipe(rename({ extname: '.min.css' }))
+    .pipe(revision)
     .pipe(gulp.dest(distFolder));
 }
 
