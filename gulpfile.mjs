@@ -9,10 +9,10 @@ import crypto from 'node:crypto';
 
 const distFolder = 'dist/';
 
-function clean(cb) {
-  fs.rmSync(distFolder, { recursive: true });
+const clean = (cb) => {
+  fs.rmSync(distFolder, { recursive: true, force: true });
   cb();
-}
+};
 
 function staticFiles(cb) {
   gulp.src('./src/**/*.ico').pipe(gulp.dest(distFolder));
