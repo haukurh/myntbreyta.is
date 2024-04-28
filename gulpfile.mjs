@@ -37,18 +37,28 @@ const handleMinifiedUrls = (data) => {
   return data.replace('.css"', '.min.css"').replace('.js"', '.min.js"');
 };
 
-const revision = new Transform({
-  objectMode: true,
-  transform(file, encoding, callback) {
-    if (file.isBuffer()) {
-      const hash = crypto.createHash('md5').update(file.contents.toString()).digest('hex');
-      const ext = path.extname(file.path);
-      file.path = file.path.substring(0, file.path.length - ext.length) + '-' + hash.substring(0, 8) + ext;
-    }
-    callback(null, file);
-  },
-});
+const revisionedFiles = {};
 
+const revision = () => new Transform({
+    objectMode: true,
+    transform(file, encoding, callback) {
+      if (file.isBuffer()) {
+        const hash = crypto
+          .createHash('md5')
+          .update(file.contents.toString())
+          .digest('hex');
+        const key = file.relative;
+        const ext = path.extname(file.path);
+        file.path =
+          file.path.substring(0, file.path.length - ext.length) +
+          '-' +
+          hash.substring(0, 8) +
+          ext;
+        revisionedFiles[key] = file.relative;
+      }
+      callback(null, file);
+    },
+  });
 
 const minifyHTML = new Transform({
   objectMode: true,
@@ -98,11 +108,11 @@ function html() {
     .pipe(gulp.dest(distFolder));
 }
 
-function javascript() {
+function javascript(cb) {
   return gulp
     .src(['src/**/*.js', '!src/sw.js'])
     .pipe(minifyJS)
-    .pipe(revision)
+    .pipe(revision())
     .pipe(gulp.dest(distFolder));
 }
 
@@ -110,11 +120,11 @@ function css() {
   return gulp
     .src('src/**/*.css')
     .pipe(minifyCSS)
-    .pipe(revision)
+    .pipe(revision())
     .pipe(gulp.dest(distFolder));
 }
 
-gulp.task('build', gulp.series(clean, staticFiles, html, css, javascript));
+gulp.task('build', gulp.series(clean, staticFiles, javascript, css, html));
 
 export default (cb) => {
   clean(() => {});
