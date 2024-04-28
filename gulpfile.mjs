@@ -1,5 +1,4 @@
 import gulp from 'gulp';
-import replace from 'gulp-replace';
 import htmlJs from 'html-minifier';
 import * as cssJs from 'csso';
 import jsJs from 'uglify-js';
@@ -22,22 +21,22 @@ function staticFiles(cb) {
   cb();
 }
 
-const handleMinifiedUrls = (data) => {
-  let filename = 'src';
-  const match = data.match(/"(?<filename>.*)"/);
-  if (!match) {
-    return data;
-  }
-  filename += match.groups.filename;
-
-  if (!fs.existsSync(filename)) {
-    return data;
-  }
-
-  return data.replace('.css"', '.min.css"').replace('.js"', '.min.js"');
-};
-
 const revisionedFiles = {};
+
+const replaceRevisionFiles = () =>
+  new Transform({
+    objectMode: true,
+    transform(file, encoding, callback) {
+      if (file.isBuffer()) {
+        let contents = file.contents.toString();
+        Object.keys(revisionedFiles).forEach((key) => {
+          contents = contents.replaceAll(key, revisionedFiles[key]);
+        });
+        file.contents = Buffer.from(contents);
+      }
+      callback(null, file);
+    },
+  });
 
 const revision = () =>
   new Transform({
@@ -107,7 +106,7 @@ const minifyCSS = () =>
 function html() {
   return gulp
     .src('src/**/*.html')
-    .pipe(replace(/(href|src)="(.+?(\.js|\.css))"/g, handleMinifiedUrls))
+    .pipe(replaceRevisionFiles())
     .pipe(minifyHTML())
     .pipe(gulp.dest(distFolder));
 }
