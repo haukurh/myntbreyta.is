@@ -6,6 +6,7 @@ import fs from 'node:fs';
 import { Transform } from 'node:stream';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import server from './server.mjs';
 
 const distFolder = 'dist/';
 
@@ -124,16 +125,27 @@ const css = () =>
     .pipe(revision())
     .pipe(gulp.dest(distFolder));
 
+const developmentServer = (cb) => {
+  const port = 8000;
+  const host = '0.0.0.0';
+  server.listen(port, host, () => {
+    console.log(`Server is running on http://${host}:${port}`);
+  });
+  cb();
+};
+
 gulp.task(
   'build',
   gulp.series(clean, gulp.parallel(staticFiles, javascript, css), html),
 );
 
 export default (cb) => {
-  clean(() => {});
-  staticFiles(() => {});
-  gulp.watch('src/**/*.css', { ignoreInitial: false }, css);
-  gulp.watch('src/**/*.html', { ignoreInitial: false }, html);
-  gulp.watch('src/**/*.js', { ignoreInitial: false }, javascript);
+  gulp.parallel(clean, staticFiles);
+  gulp.watch(
+    'src/**/*.{css,js,html}',
+    { ignoreInitial: false },
+    gulp.series(css, javascript, html),
+  );
+  developmentServer(() => {});
   cb();
 };

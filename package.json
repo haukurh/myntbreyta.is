@@ -7,8 +7,9 @@
   "author": "Haukur Hlöðversson <haukur@haukurh.is>",
   "license": "MIT",
   "scripts": {
+    "dev": "gulp default",
     "build": "gulp build",
-    "lint": "prettier -w src/ gulpfile.mjs"
+    "lint": "prettier -w src/ gulpfile.mjs server.mjs"
   },
   "devDependencies": {
     "csso": "^5.0.5",
