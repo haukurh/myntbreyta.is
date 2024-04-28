@@ -1,7 +1,7 @@
 import gulp from 'gulp';
-import htmlJs from 'html-minifier';
-import * as cssJs from 'csso';
-import jsJs from 'uglify-js';
+import htmlMinifier from 'html-minifier';
+import * as csso from 'csso';
+import uglifyJs from 'uglify-js';
 import fs from 'node:fs';
 import { Transform } from 'node:stream';
 import path from 'node:path';
@@ -14,12 +14,12 @@ const clean = (cb) => {
   cb();
 };
 
-function staticFiles(cb) {
+const staticFiles = (cb) => {
   gulp.src('./src/**/*.ico').pipe(gulp.dest(distFolder));
   gulp.src('./src/**/*.json').pipe(gulp.dest(distFolder));
   gulp.src('./src/sw.js').pipe(gulp.dest(distFolder));
   cb();
-}
+};
 
 const revisionedFiles = {};
 
@@ -65,7 +65,7 @@ const minifyHTML = () =>
     objectMode: true,
     transform(file, encoding, callback) {
       if (file.isBuffer()) {
-        const minifiedHTML = htmlJs.minify(file.contents.toString(), {
+        const minifiedHTML = htmlMinifier.minify(file.contents.toString(), {
           collapseWhitespace: true,
           decodeEntities: true,
           html5: true,
@@ -84,7 +84,7 @@ const minifyJS = () =>
     objectMode: true,
     transform(file, encoding, callback) {
       if (file.isBuffer()) {
-        const minifiedJs = jsJs.minify(file.contents.toString());
+        const minifiedJs = uglifyJs.minify(file.contents.toString());
         file.contents = Buffer.from(minifiedJs.code);
       }
       callback(null, file);
@@ -96,38 +96,38 @@ const minifyCSS = () =>
     objectMode: true,
     transform(file, encoding, callback) {
       if (file.isBuffer()) {
-        const css = cssJs.minify(file.contents.toString()).css;
+        const css = csso.minify(file.contents.toString()).css;
         file.contents = Buffer.from(css);
       }
       callback(null, file);
     },
   });
 
-function html() {
-  return gulp
+const html = () =>
+  gulp
     .src('src/**/*.html')
     .pipe(replaceRevisionFiles())
     .pipe(minifyHTML())
     .pipe(gulp.dest(distFolder));
-}
 
-function javascript(cb) {
-  return gulp
+const javascript = () =>
+  gulp
     .src(['src/**/*.js', '!src/sw.js'])
     .pipe(minifyJS())
     .pipe(revision())
     .pipe(gulp.dest(distFolder));
-}
 
-function css() {
-  return gulp
+const css = () =>
+  gulp
     .src('src/**/*.css')
     .pipe(minifyCSS())
     .pipe(revision())
     .pipe(gulp.dest(distFolder));
-}
 
-gulp.task('build', gulp.series(clean, staticFiles, javascript, css, html));
+gulp.task(
+  'build',
+  gulp.series(clean, gulp.parallel(staticFiles, javascript, css), html),
+);
 
 export default (cb) => {
   clean(() => {});
