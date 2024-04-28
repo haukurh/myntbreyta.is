@@ -39,7 +39,8 @@ const handleMinifiedUrls = (data) => {
 
 const revisionedFiles = {};
 
-const revision = () => new Transform({
+const revision = () =>
+  new Transform({
     objectMode: true,
     transform(file, encoding, callback) {
       if (file.isBuffer()) {
@@ -60,58 +61,61 @@ const revision = () => new Transform({
     },
   });
 
-const minifyHTML = new Transform({
-  objectMode: true,
-  transform(file, encoding, callback) {
-    if (file.isBuffer()) {
-      const minifiedHTML = htmlJs.minify(file.contents.toString(), {
-        collapseWhitespace: true,
-        decodeEntities: true,
-        html5: true,
-        minifyCSS: true,
-        minifyJS: true,
-        removeComments: true,
-      });
-      file.contents = Buffer.from(minifiedHTML);
-    }
-    callback(null, file);
-  },
-});
+const minifyHTML = () =>
+  new Transform({
+    objectMode: true,
+    transform(file, encoding, callback) {
+      if (file.isBuffer()) {
+        const minifiedHTML = htmlJs.minify(file.contents.toString(), {
+          collapseWhitespace: true,
+          decodeEntities: true,
+          html5: true,
+          minifyCSS: true,
+          minifyJS: true,
+          removeComments: true,
+        });
+        file.contents = Buffer.from(minifiedHTML);
+      }
+      callback(null, file);
+    },
+  });
 
-const minifyJS = new Transform({
-  objectMode: true,
-  transform(file, encoding, callback) {
-    if (file.isBuffer()) {
-      const minifiedJs = jsJs.minify(file.contents.toString());
-      file.contents = Buffer.from(minifiedJs.code);
-    }
-    callback(null, file);
-  },
-});
+const minifyJS = () =>
+  new Transform({
+    objectMode: true,
+    transform(file, encoding, callback) {
+      if (file.isBuffer()) {
+        const minifiedJs = jsJs.minify(file.contents.toString());
+        file.contents = Buffer.from(minifiedJs.code);
+      }
+      callback(null, file);
+    },
+  });
 
-const minifyCSS = new Transform({
-  objectMode: true,
-  transform(file, encoding, callback) {
-    if (file.isBuffer()) {
-      const css = cssJs.minify(file.contents.toString()).css;
-      file.contents = Buffer.from(css);
-    }
-    callback(null, file);
-  },
-});
+const minifyCSS = () =>
+  new Transform({
+    objectMode: true,
+    transform(file, encoding, callback) {
+      if (file.isBuffer()) {
+        const css = cssJs.minify(file.contents.toString()).css;
+        file.contents = Buffer.from(css);
+      }
+      callback(null, file);
+    },
+  });
 
 function html() {
   return gulp
     .src('src/**/*.html')
     .pipe(replace(/(href|src)="(.+?(\.js|\.css))"/g, handleMinifiedUrls))
-    .pipe(minifyHTML)
+    .pipe(minifyHTML())
     .pipe(gulp.dest(distFolder));
 }
 
 function javascript(cb) {
   return gulp
     .src(['src/**/*.js', '!src/sw.js'])
-    .pipe(minifyJS)
+    .pipe(minifyJS())
     .pipe(revision())
     .pipe(gulp.dest(distFolder));
 }
@@ -119,7 +123,7 @@ function javascript(cb) {
 function css() {
   return gulp
     .src('src/**/*.css')
-    .pipe(minifyCSS)
+    .pipe(minifyCSS())
     .pipe(revision())
     .pipe(gulp.dest(distFolder));
 }
