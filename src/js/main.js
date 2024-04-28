@@ -97,3 +97,138 @@ const getUserSelectedCurrency = () => {
   }
   return current;
 };
+
+const selector = document.getElementById('currency');
+const domestic = document.getElementById('domestic');
+const foreign = document.getElementById('foreign');
+
+const NUMBER_FORMAT_1 = 1;
+const NUMBER_FORMAT_2 = 2;
+const numberFormat =
+  db.get(db.keys.NUMBER_FORMAT) !== NUMBER_FORMAT_2
+    ? NUMBER_FORMAT_1
+    : NUMBER_FORMAT_2;
+const group = numberFormat === NUMBER_FORMAT_1 ? '.' : ',';
+const decimal = numberFormat === NUMBER_FORMAT_1 ? ',' : '.';
+
+let rate = 1;
+let currencies = {};
+let currency = 'ISK';
+
+const setSelected = async (currencyCode) => {
+  if ((!currencyCode) in currencies) {
+    console.warn('Unable to find selected currency, when selecting', {
+      currencyCode,
+    });
+    db.remove(db.keys.CURRENT);
+    return;
+  }
+  currency = currencyCode;
+  console.log(`Selecting currency ${currencyCode}`);
+  db.set(db.keys.CURRENT, currency);
+  document
+    .querySelectorAll('.foreign-label')
+    .forEach((el) => (el.innerText = currency));
+  //document.getElementById('foreign-label').innerText = currency.CurrencyCode;
+  document.getElementById('foreign-label-description').innerText =
+    `(${currency})`;
+  rate = currencies[currency];
+  updateForeign();
+};
+
+const getCurrentRate = () => {
+  if (!rate) {
+    return 0;
+  }
+  rate = parseFloat(rate);
+  return isNaN(rate) ? 0 : rate;
+};
+
+const getFormValue = (el) => {
+  const value = Number.parseFloat(
+    el.value.toString().replaceAll(group, '').replaceAll(',', '.'),
+  );
+  return isNaN(value) ? 0 : value;
+};
+
+const formatNumber = (number) => {
+  return new Intl.NumberFormat('is-IS', {
+    style: 'decimal',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: number < 100 ? 2 : 0,
+    trailingZeroDisplay: 'stripIfInteger',
+  })
+    .formatToParts(number)
+    .map((obj) => {
+      if (obj.type === 'group') {
+        obj.value = group;
+      }
+      if (obj.type === 'decimal') {
+        obj.value = decimal;
+      }
+      return obj.value;
+    })
+    .join('');
+};
+
+const updateFront = () => {
+  const domesticValue = getFormValue(domestic);
+  domestic.value = formatNumber(domesticValue);
+  const foreignValue = getFormValue(foreign);
+  foreign.value = formatNumber(foreignValue);
+};
+
+const updateForeign = () => {
+  console.log('Updating foreign');
+  const value = getFormValue(domestic);
+  foreign.value = formatNumber((value / rate).toFixed(2));
+  updateFront();
+};
+
+const updateDomestic = () => {
+  console.log('Updating domestic');
+  const value = getFormValue(foreign);
+  domestic.value = formatNumber((value * rate).toFixed(0));
+  updateFront();
+};
+
+const updateSelector = (currencies) => {
+  console.log('Running updateSelector');
+  const current = getUserSelectedCurrency();
+  const userSelectedCurrencies = getUserSelectedCurrencies();
+  const selector = document.getElementById('currency');
+  selector.innerHTML = '';
+  userSelectedCurrencies.forEach((currencyCode) => {
+    const option = document.createElement('option');
+    option.value = currencyCode;
+    option.innerText = currencyCode;
+    if (currencyCode === current) {
+      option.selected = true;
+      setSelected(current);
+    }
+    selector.appendChild(option);
+  });
+  return currencies;
+};
+
+selector.addEventListener('change', (e) => setSelected(e.target.value));
+domestic.addEventListener('change', updateForeign);
+domestic.addEventListener('input', updateForeign);
+foreign.addEventListener('change', updateDomestic);
+foreign.addEventListener('input', updateDomestic);
+
+fetch('/currency-rates.json')
+  .then((response) => {
+    const lastModified = response.headers.get('last-modified');
+    const el = document.getElementById('currencyDate');
+    const modifiedAt = new Date(lastModified);
+    el.innerText = new Intl.DateTimeFormat(['is-IS', 'en-GB'], {
+      dateStyle: 'long',
+    }).format(modifiedAt);
+    return response.json();
+  })
+  .then((response) => {
+    currencies = response;
+    updateSelector();
+    updateForeign();
+  });
