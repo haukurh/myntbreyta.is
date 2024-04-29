@@ -10,6 +10,8 @@ import server from './server.mjs';
 
 const distFolder = 'dist/';
 
+let shouldMinify = true;
+
 const clean = (cb) => {
   fs.rmSync(distFolder, { recursive: true, force: true });
   cb();
@@ -65,7 +67,7 @@ const minifyHTML = () =>
   new Transform({
     objectMode: true,
     transform(file, encoding, callback) {
-      if (file.isBuffer()) {
+      if (file.isBuffer() && shouldMinify) {
         const minifiedHTML = htmlMinifier.minify(file.contents.toString(), {
           collapseWhitespace: true,
           decodeEntities: true,
@@ -84,7 +86,7 @@ const minifyJS = () =>
   new Transform({
     objectMode: true,
     transform(file, encoding, callback) {
-      if (file.isBuffer()) {
+      if (file.isBuffer() && shouldMinify) {
         const minifiedJs = uglifyJs.minify(file.contents.toString());
         file.contents = Buffer.from(minifiedJs.code);
       }
@@ -96,7 +98,7 @@ const minifyCSS = () =>
   new Transform({
     objectMode: true,
     transform(file, encoding, callback) {
-      if (file.isBuffer()) {
+      if (file.isBuffer() && shouldMinify) {
         const css = csso.minify(file.contents.toString()).css;
         file.contents = Buffer.from(css);
       }
@@ -140,6 +142,7 @@ gulp.task(
 );
 
 export default (cb) => {
+  shouldMinify = false;
   gulp.parallel(clean, staticFiles);
   gulp.watch(
     'src/**/*.{css,js,html}',
