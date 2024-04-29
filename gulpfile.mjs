@@ -143,7 +143,8 @@ gulp.task(
 
 export default (cb) => {
   shouldMinify = false;
-  gulp.parallel(clean, staticFiles);
+  clean(() => {});
+  staticFiles(() => {});
   gulp.watch(
     'src/**/*.{css,js,html}',
     { ignoreInitial: false },
