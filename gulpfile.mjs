@@ -20,7 +20,7 @@ const clean = (cb) => {
 const staticFiles = (cb) => {
   gulp.src('./src/**/*.ico').pipe(gulp.dest(distFolder));
   gulp.src('./src/**/*.json').pipe(gulp.dest(distFolder));
-  gulp.src('./src/sw.js').pipe(gulp.dest(distFolder));
+  gulp.src('./src/sw.js').pipe(minifyJS()).pipe(gulp.dest(distFolder));
   cb();
 };
 
