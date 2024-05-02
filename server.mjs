@@ -34,6 +34,9 @@ const requestListener = function (req, res) {
           'Content-Type',
           ext in contentTypes ? contentTypes[ext] : 'text/plain',
         );
+        if (urlPath !== '/currency-rates.json') {
+          res.setHeader('Cache-Control', 'public,max-age=60');
+        }
         res.writeHead(200);
         res.end(readFileSync(`./dist/${urlPath}`));
       } else {
