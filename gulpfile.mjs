@@ -20,7 +20,6 @@ const clean = (cb) => {
 const staticFiles = (cb) => {
   gulp.src('./src/**/*.ico').pipe(gulp.dest(distFolder));
   gulp.src('./src/**/*.json').pipe(gulp.dest(distFolder));
-  gulp.src('./src/sw.js').pipe(minifyJS()).pipe(gulp.dest(distFolder));
   cb();
 };
 
@@ -106,6 +105,9 @@ const minifyCSS = () =>
     },
   });
 
+const serviceWorker = () =>
+  gulp.src('./src/sw.js').pipe(minifyJS()).pipe(gulp.dest(distFolder));
+
 const html = () =>
   gulp
     .src('src/**/*.html')
@@ -138,7 +140,7 @@ const developmentServer = (cb) => {
 
 gulp.task(
   'build',
-  gulp.series(clean, gulp.parallel(staticFiles, javascript, css), html),
+  gulp.series(clean, gulp.parallel(staticFiles, serviceWorker, javascript, css), html),
 );
 
 export default (cb) => {
@@ -148,7 +150,7 @@ export default (cb) => {
   gulp.watch(
     'src/**/*.{css,js,html}',
     { ignoreInitial: false },
-    gulp.series(css, javascript, html),
+    gulp.series(serviceWorker, css, javascript, html),
   );
   developmentServer(() => {});
   cb();
