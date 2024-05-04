@@ -42,12 +42,12 @@ const cacheFirst = async ({ request, preloadResponsePromise, fallbackUrl }) => {
     }
   }
 
-    // Next try to use the preloaded response, if it's there
-    const preloadResponse = await preloadResponsePromise.catch(() => {});
-    if (preloadResponse) {
-      putInCache(request, preloadResponse.clone());
-      return preloadResponse;
-    }
+  // Next try to use the preloaded response, if it's there
+  const preloadResponse = await preloadResponsePromise.catch(() => {});
+  if (preloadResponse) {
+    putInCache(request, preloadResponse.clone());
+    return preloadResponse;
+  }
 
   // Next try to get the resource from the network
   try {
