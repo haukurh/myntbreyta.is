@@ -4,7 +4,7 @@ import path from 'node:path';
 import url from 'node:url';
 
 const started = new Date();
-started.setHours(started.getHours() + 2);
+started.setMinutes(started.getMinutes() + 1);
 
 const requestListener = function (req, res) {
   const urlPath =
@@ -35,7 +35,7 @@ const requestListener = function (req, res) {
           ext in contentTypes ? contentTypes[ext] : 'text/plain',
         );
         if (urlPath !== '/currency-rates.json') {
-          res.setHeader('Cache-Control', 'public,max-age=60');
+          res.setHeader('Cache-Control', urlPath === '/sw.js' ? 'no-cache,no-store' : 'public,max-age=3600');
         }
         res.writeHead(200);
         res.end(readFileSync(`./dist/${urlPath}`));
