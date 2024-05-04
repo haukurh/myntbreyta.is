@@ -32,7 +32,7 @@ jobs:
         run: yarn build
 
       - name: Sync HTML files to the S3 bucket
-        run: aws s3 sync dist/ s3://${{ vars.AWS_S3_BUCKET }}/ --exclude=* --include=*.html --cache-control="public,max-age=86400"
+        run: aws s3 sync dist/ s3://${{ vars.AWS_S3_BUCKET }}/ --exclude=* --include=*.html --cache-control="public,max-age=86400,s-maxage=604800"
 
       - name: Fetch rates, so they are not deleted in next step
         continue-on-error: true
@@ -42,7 +42,7 @@ jobs:
         run: aws s3 sync dist/ s3://${{ vars.AWS_S3_BUCKET }}/ --cache-control="public,max-age=31536000,immutable" --delete
 
       - name: Update service worker metadata
-        run: aws s3 cp dist/sw.js s3://${{ vars.AWS_S3_BUCKET }}/sw.js --cache-control="no-cache"
+        run: aws s3 cp dist/sw.js s3://${{ vars.AWS_S3_BUCKET }}/sw.js --cache-control="no-cache,no-store"
 
       - name: Run CloudFront invalidation
         run: aws cloudfront create-invalidation --distribution-id ${{ vars.AWS_CLOUDFRONT_DIST }} --paths "/*"
