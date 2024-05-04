@@ -6,8 +6,10 @@ const addResourcesToCache = async (resources) => {
 };
 
 const putInCache = async (request, response) => {
-  const cache = await caches.open(version);
-  await cache.put(request, response);
+  if (request.method === 'GET' && response.ok && !response.redirected) {
+    const cache = await caches.open(version);
+    await cache.put(request, response);
+  }
 };
 
 const cacheFirst = async ({ request, preloadResponsePromise, fallbackUrl }) => {
