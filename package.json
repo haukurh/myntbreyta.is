@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "gulp default",
     "build": "gulp build",
-    "lint": "prettier -w src/ gulpfile.mjs server.mjs"
+    "format": "prettier -w src/ gulpfile.mjs server.mjs"
   },
   "devDependencies": {
     "csso": "^5.0.5",
