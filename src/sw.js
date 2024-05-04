@@ -17,30 +17,37 @@ const cacheFirst = async ({ request, preloadResponsePromise, fallbackUrl }) => {
   const cache = await caches.open(version);
   const responseFromCache = await cache.match(request, { ignoreSearch: true });
 
-  if (
-    responseFromCache &&
-    request.headers.get('cache-control') !== 'no-cache'
-  ) {
+  if (responseFromCache && ['default', 'force-cache'].includes(request.cache)) {
     const expiresHeader = responseFromCache.headers.get('expires');
-    if (expiresHeader === null) {
-      // console.log('No expire header, serving from cache');
+    if (
+      expiresHeader === null ||
+      (expiresHeader !== null && new Date() < new Date(expiresHeader))
+    ) {
+      preloadResponsePromise
+        .then((response) => {
+          if (response) {
+            putInCache(request, response.clone());
+          } else {
+            fetch(request)
+              .then((response) => {
+                if (response) {
+                  putInCache(request, response.clone());
+                }
+              })
+              .catch(() => {});
+          }
+        })
+        .catch(() => {});
       return responseFromCache;
     }
+  }
 
-    if (new Date() < new Date(expiresHeader)) {
-      // console.log('Cache is still valid');
-      return responseFromCache;
+    // Next try to use the preloaded response, if it's there
+    const preloadResponse = await preloadResponsePromise.catch(() => {});
+    if (preloadResponse) {
+      putInCache(request, preloadResponse.clone());
+      return preloadResponse;
     }
-    console.log('Cache has expired fetching, getting from network');
-  }
-
-  // Next try to use the preloaded response, if it's there
-  const preloadResponse = await preloadResponsePromise;
-  if (preloadResponse) {
-    console.info('using preload response');
-    putInCache(request, preloadResponse.clone());
-    return preloadResponse;
-  }
 
   // Next try to get the resource from the network
   try {
@@ -84,6 +91,6 @@ self.addEventListener('fetch', (event) => {
     cacheFirst({
       request: event.request,
       preloadResponsePromise: event.preloadResponse,
-    }),
+    }).catch((e) => console.warn('Something went really wrong', { error: e })),
   );
 });
