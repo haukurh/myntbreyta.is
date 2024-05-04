@@ -140,7 +140,11 @@ const developmentServer = (cb) => {
 
 gulp.task(
   'build',
-  gulp.series(clean, gulp.parallel(staticFiles, serviceWorker, javascript, css), html),
+  gulp.series(
+    clean,
+    gulp.parallel(staticFiles, serviceWorker, javascript, css),
+    html,
+  ),
 );
 
 export default (cb) => {

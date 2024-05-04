@@ -76,13 +76,25 @@ const enableNavigationPreload = async () => {
   }
 };
 
+const clearCaches = async () => {
+  console.log('clearing all caches');
+  await caches.keys().then((cacheNames) => {
+    cacheNames.forEach((cacheName) => {
+      if (version !== cacheName) {
+        caches.delete(cacheName);
+      }
+    });
+  });
+};
+
 self.addEventListener('activate', (event) => {
   event.waitUntil(enableNavigationPreload());
 });
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    addResourcesToCache(['/', '/index.html', '/currency-rates.json']),
+    clearCaches(),
+    addResourcesToCache(['/', '/currency-rates.json']),
   );
 });
 
