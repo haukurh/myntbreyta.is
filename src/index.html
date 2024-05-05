@@ -20,11 +20,15 @@
   </head>
   <body>
     <header>
-      <h1>myntbreyta.is</h1>
-      <select id="currency" aria-label="Currency selector"></select>
+      <div class="container">
+        <h1>myntbreyta.is</h1>
+        <div class="selector">
+          <select id="currency" aria-label="Currency selector"></select>
+        </div>
+      </div>
     </header>
 
-    <main>
+    <main class="container">
       <form>
         <div class="divider">
           <div>
@@ -63,7 +67,9 @@
       </form>
     </main>
 
-    <footer>Gengi uppfært: <span id="currencyDate">óþekkt</span></footer>
+    <footer class="container">
+      Gengi uppfært: <span id="currencyDate">óþekkt</span>
+    </footer>
 
     <script src="/js/main.js" type="application/javascript"></script>
   </body>

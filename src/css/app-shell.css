@@ -9,7 +9,8 @@ html,
 body,
 div,
 header,
-main {
+main,
+footer {
   margin: 0;
   padding: 0;
 }
@@ -17,14 +18,17 @@ main {
 header {
   box-sizing: border-box;
   background-color: #4e7e4e;
+  color: white;
+  font-size: 1.4rem;
+}
+
+header > div {
   padding: 1rem 2rem;
   height: 4rem;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  color: white;
-  font-size: 1.4rem;
 }
 
 header h1 {
@@ -37,17 +41,31 @@ header h1 {
 
 header select {
   all: unset;
-  padding: 0.3rem 0 0.3rem 0.5rem;
+  padding: 0.3rem 1em 0.3rem 0.5rem;
   text-align: right;
   text-align: -webkit-right;
   font-weight: bold;
   font-size: inherit;
-  max-width: 50vw;
+  margin-right: -1em;
+  max-width: 19rem;
+  z-index: 1;
+}
+
+.selector::after {
+  content: '\25bc';
+  display: block;
+  font-size: 0.55em;
+  margin: 0 0 0 0.5em;
 }
 
 header select option,
 header select optgroup {
   font-size: initial;
+}
+
+.selector {
+  display: flex;
+  align-items: center;
 }
 
 main {
@@ -57,6 +75,14 @@ main {
 footer {
   padding: 2rem 1rem;
   text-align: center;
+}
+
+.container {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 40rem;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 #currencyDate {
