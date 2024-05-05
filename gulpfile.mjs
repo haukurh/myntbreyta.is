@@ -18,7 +18,7 @@ const clean = (cb) => {
 };
 
 const staticFiles = (cb) => {
-  gulp.src('./src/**/*.ico').pipe(gulp.dest(distFolder));
+  gulp.src('./src/**/*.ico', { encoding: false }).pipe(gulp.dest(distFolder));
   gulp.src('./src/**/*.json').pipe(gulp.dest(distFolder));
   cb();
 };
