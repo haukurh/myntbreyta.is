@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.0.13] - 2024-05-05
+
+### Added
+
+- Development server
+- Revision hash to assets filenames for cache bursting
+- Clear browser cache on service worker install
+- Set 's-maxage' to week in cache-control on HTML documents
+
+### Changed
+
+- Gulpfile to ECMAscript module + refactor
+- Switch out basic gulp packages for "in-house" logic
+- Cache strategy to stale-while-revalidate except for objects with 'expires' header
+
+### Fixed
+
+- Yarn script name of prettier script
+- Only cache 'OK' GET responses
+
 ## [v0.0.12] - 2024-04-23
 
 ### Added
