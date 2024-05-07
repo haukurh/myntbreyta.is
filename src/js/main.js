@@ -52,6 +52,19 @@ registerServiceWorker();
 
 const popularList = ['EUR', 'USD', 'GBP', 'SEK', 'AUD', 'THB'];
 
+const currencyDescription = {
+  EUR: 'evra',
+  USD: 'dalur, bandarískur',
+  GBP: 'pund, sterlingspund',
+  SEK: 'króna, sænsk',
+  AUD: 'dalur, ástralskur',
+  CHF: 'franki, svissneskur',
+  DKK: 'króna, dönsk',
+  NOK: 'króna, norsk',
+  CZK: 'króna, tékknesk',
+  THB: 'bat',
+};
+
 const db = {
   get: (key) => JSON.parse(window.localStorage.getItem(key)),
   set: (key, value) => window.localStorage.setItem(key, JSON.stringify(value)),
@@ -131,7 +144,7 @@ const setSelected = async (currencyCode) => {
     .forEach((el) => (el.innerText = currency));
   //document.getElementById('foreign-label').innerText = currency.CurrencyCode;
   document.getElementById('foreign-label-description').innerText =
-    `(${currency})`;
+    `(${currencyDescription[currency]})`;
   rate = currencies[currency];
   updateForeign();
 };
