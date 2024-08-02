@@ -59,6 +59,8 @@ const popularList = [
   'NOK',
   'AUD',
   'PLN',
+  'CHF',
+  'CZK',
   'THB',
 ];
 
