@@ -74,6 +74,7 @@ const currencyDescription = {
   DKK: 'króna, dönsk',
   NOK: 'króna, norsk',
   CZK: 'króna, tékknesk',
+  PLN: 'slot',
   THB: 'bat',
 };
 
