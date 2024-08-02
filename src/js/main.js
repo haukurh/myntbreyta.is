@@ -150,7 +150,6 @@ const setSelected = async (currencyCode) => {
   document
     .querySelectorAll('.foreign-label')
     .forEach((el) => (el.innerText = currency));
-  //document.getElementById('foreign-label').innerText = currency.CurrencyCode;
   document.getElementById('foreign-label-description').innerText =
     `(${currencyDescription[currency]})`;
   rate = currencies[currency];
