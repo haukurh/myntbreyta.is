@@ -50,7 +50,17 @@ const unregisterServiceWorker = async () => {
 
 registerServiceWorker();
 
-const popularList = ['EUR', 'USD', 'GBP', 'SEK', 'AUD', 'THB'];
+const popularList = [
+  'EUR',
+  'USD',
+  'GBP',
+  'SEK',
+  'DKK',
+  'NOK',
+  'AUD',
+  'PLN',
+  'THB',
+];
 
 const currencyDescription = {
   EUR: 'evra',
