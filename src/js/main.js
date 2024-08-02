@@ -95,15 +95,10 @@ const db = {
 const getUserSelectedCurrencies = () => {
   const key = db.keys.USER_SELECTED_CURRENCIES;
   const selected = db.get(key);
-  if (!selected) {
-    db.set(key, popularList);
-    return popularList;
-  }
-  if (!Array.isArray(selected)) {
+  if (selected) {
     db.remove(key);
-    return getUserSelectedCurrencies();
   }
-  return selected;
+  return popularList;
 };
 
 const getUserSelectedCurrency = () => {
