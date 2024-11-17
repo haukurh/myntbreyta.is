@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <title>myntbreyta.is - 404 Fannst ekki</title>
+    <title>myntbreyta.is</title>
     <link
       href="/css/app-shell.css"
       media="all"
@@ -21,10 +21,14 @@
     </header>
 
     <main class="container center">
-      <h2>404 - Síða fannst ekki</h2>
+      <h2>Efnið sem þú baðst um er óaðgengilegt</h2>
       <p><a href="/">Fara á forsíðu</a></p>
     </main>
 
-    <footer class="container"></footer>
+    <script>
+      if (window.location.pathname === '/') {
+        document.querySelector('main a').style.display = 'none';
+      }
+    </script>
   </body>
 </html>
