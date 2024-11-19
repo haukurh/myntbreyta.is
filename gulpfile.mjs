@@ -119,8 +119,28 @@ const minifyCSS = () =>
     },
   });
 
+const updatePackageVersion = () =>
+  new Transform({
+    objectMode: true,
+    transform(file, encoding, callback) {
+      if (file.isBuffer()) {
+        const packageVersion = JSON.parse(
+          fs.readFileSync('package.json'),
+        ).version;
+        let contents = file.contents.toString();
+        contents = contents.replace('RELEASE_VERSION', `v${packageVersion}`);
+        file.contents = Buffer.from(contents);
+      }
+      callback(null, file);
+    },
+  });
+
 const serviceWorker = () =>
-  gulp.src('./src/sw.js').pipe(minifyJS()).pipe(gulp.dest(distFolder));
+  gulp
+    .src('./src/sw.js')
+    .pipe(updatePackageVersion())
+    .pipe(minifyJS())
+    .pipe(gulp.dest(distFolder));
 
 const html = () =>
   gulp
@@ -176,7 +196,7 @@ export default (cb) => {
   gulp.watch(
     'src/**/*.{css,js,html}',
     { ignoreInitial: false },
-    gulp.series(serviceWorker, css, javascript, html, errorPage),
+    gulp.series(css, javascript, serviceWorker, html, errorPage),
   );
   developmentServer(() => {});
   cb();
