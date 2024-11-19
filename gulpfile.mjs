@@ -40,6 +40,20 @@ const replaceRevisionFiles = () =>
     },
   });
 
+const setStyleAsInline = () =>
+  new Transform({
+    objectMode: true,
+    transform(file, encoding, callback) {
+      if (file.isBuffer()) {
+        const css = fs.readFileSync('src/css/app-shell.css');
+        let contents = file.contents.toString();
+        contents = contents.replace('<style></style>', `<style>${css}</style>`);
+        file.contents = Buffer.from(contents);
+      }
+      callback(null, file);
+    },
+  });
+
 const revision = () =>
   new Transform({
     objectMode: true,
@@ -115,6 +129,13 @@ const html = () =>
     .pipe(minifyHTML())
     .pipe(gulp.dest(distFolder));
 
+const errorPage = () =>
+  gulp
+    .src('src/error.html')
+    .pipe(setStyleAsInline())
+    .pipe(minifyHTML())
+    .pipe(gulp.dest(distFolder));
+
 const javascript = () =>
   gulp
     .src(['src/**/*.js', '!src/sw.js'])
@@ -144,6 +165,7 @@ gulp.task(
     clean,
     gulp.parallel(staticFiles, serviceWorker, javascript, css),
     html,
+    errorPage,
   ),
 );
 
