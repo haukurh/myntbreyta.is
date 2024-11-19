@@ -153,7 +153,8 @@ const setSelected = async (currencyCode) => {
   document.getElementById('foreign-label-description').innerText =
     `(${currencyDescription[currency]})`;
   rate = currencies[currency];
-  updateForeign();
+  foreign.value = 1;
+  updateDomestic();
 };
 
 const getCurrentRate = () => {

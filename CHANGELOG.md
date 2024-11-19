@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Inline styles in error.html for performance
 - Set service worker release version from package.json
 - Allow up 6 fractional points on user input
+- Set foreign base unit to 1 at currency selection for better UX
 
 ### Fixed
 
