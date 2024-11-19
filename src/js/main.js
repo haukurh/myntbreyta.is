@@ -164,6 +164,11 @@ const getCurrentRate = () => {
   return isNaN(rate) ? 0 : rate;
 };
 
+const shouldUpdate = (el) => {
+  const value = el.value.toString();
+  return !(value === '' || [',', '.'].includes(value.trim().slice(-1)));
+};
+
 const getFormValue = (el) => {
   const value = Number.parseFloat(
     el.value.toString().replaceAll(group, '').replaceAll(',', '.'),
@@ -193,9 +198,13 @@ const formatNumber = (number) => {
 
 const updateFront = () => {
   const domesticValue = getFormValue(domestic);
-  domestic.value = formatNumber(domesticValue);
+  if (shouldUpdate(domestic)) {
+    domestic.value = formatNumber(domesticValue);
+  }
   const foreignValue = getFormValue(foreign);
-  foreign.value = formatNumber(foreignValue);
+  if (shouldUpdate(foreign)) {
+    foreign.value = formatNumber(foreignValue);
+  }
 };
 
 const updateForeign = () => {
