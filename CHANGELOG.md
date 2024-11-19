@@ -7,12 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v0.0.18] - 2024-11-20
 
+### Added
+
+- Info about release procedure
+
 ### Changed
 
 - Inline styles in error.html for performance
+- Set service worker release version from package.json
+- Allow up 6 fractional points on user input
 
 ### Fixed
 
+- Allow empty string + comma on user input
 - Resolving error.html in dev server
 
 ## [v0.0.17] - 2024-11-17
