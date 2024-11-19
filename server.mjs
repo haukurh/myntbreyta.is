@@ -43,9 +43,9 @@ const requestListener = function (req, res) {
         res.writeHead(200);
         res.end(readFileSync(`./dist/${urlPath}`));
       } else {
-        res.setHeader('Content-Type', 'text/plain');
+        res.setHeader('Content-Type', 'text/html');
         res.writeHead(404);
-        res.end('Not Found!');
+        res.end(readFileSync('./dist/error.html'));
       }
       break;
   }

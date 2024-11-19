@@ -176,7 +176,7 @@ export default (cb) => {
   gulp.watch(
     'src/**/*.{css,js,html}',
     { ignoreInitial: false },
-    gulp.series(serviceWorker, css, javascript, html),
+    gulp.series(serviceWorker, css, javascript, html, errorPage),
   );
   developmentServer(() => {});
   cb();
