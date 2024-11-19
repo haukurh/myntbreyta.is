@@ -176,11 +176,15 @@ const getFormValue = (el) => {
   return isNaN(value) ? 0 : value;
 };
 
-const formatNumber = (number) => {
+const formatNumber = (number, allowFraction = false) => {
+  let maxFraction = number < 100 ? 2 : 0;
+  if (allowFraction) {
+    maxFraction = 6;
+  }
   return new Intl.NumberFormat('is-IS', {
     style: 'decimal',
     minimumFractionDigits: 0,
-    maximumFractionDigits: number < 100 ? 2 : 0,
+    maximumFractionDigits: maxFraction,
     trailingZeroDisplay: 'stripIfInteger',
   })
     .formatToParts(number)
@@ -196,14 +200,14 @@ const formatNumber = (number) => {
     .join('');
 };
 
-const updateFront = () => {
+const updateFront = (allowDomesticFraction = false, allowForeignFraction = false) => {
   const domesticValue = getFormValue(domestic);
   if (shouldUpdate(domestic)) {
-    domestic.value = formatNumber(domesticValue);
+    domestic.value = formatNumber(domesticValue, allowDomesticFraction);
   }
   const foreignValue = getFormValue(foreign);
   if (shouldUpdate(foreign)) {
-    foreign.value = formatNumber(foreignValue);
+    foreign.value = formatNumber(foreignValue, allowForeignFraction);
   }
 };
 
@@ -211,14 +215,14 @@ const updateForeign = () => {
   console.log('Updating foreign');
   const value = getFormValue(domestic);
   foreign.value = formatNumber((value / rate).toFixed(2));
-  updateFront();
+  updateFront(true);
 };
 
 const updateDomestic = () => {
   console.log('Updating domestic');
   const value = getFormValue(foreign);
   domestic.value = formatNumber((value * rate).toFixed(0));
-  updateFront();
+  updateFront(false, true);
 };
 
 const updateSelector = (currencies) => {
