@@ -15,7 +15,14 @@ const userEnv = {};
 if (fs.existsSync('.env')) {
   const envFile = fs.readFileSync('.env');
   console.log(envFile.toString());
-  envFile.toString().split('\n').filter(i => i !== '').forEach(entry => { const env = entry.split('=', 2).map(e => e.trim()); userEnv[env[0]] = env[1]; });
+  envFile
+    .toString()
+    .split('\n')
+    .filter((i) => i !== '')
+    .forEach((entry) => {
+      const env = entry.split('=', 2).map((e) => e.trim());
+      userEnv[env[0]] = env[1];
+    });
 }
 
 const env = {
@@ -24,7 +31,7 @@ const env = {
 };
 
 if (!('MYNTBREYTA_SITE_URL' in env)) {
-  throw new Error ('"MYNTBREYTA_SITE_URL" is not set');
+  throw new Error('"MYNTBREYTA_SITE_URL" is not set');
 }
 
 const siteUrl = env.MYNTBREYTA_SITE_URL;
@@ -127,7 +134,7 @@ const minifyHTML = () =>
     objectMode: true,
     transform(file, encoding, callback) {
       if (file.isBuffer() && shouldMinify) {
-        const minifiedHTML = htmlMinifier.minify(file.contents.toString(), {
+        let minifiedHTML = htmlMinifier.minify(file.contents.toString(), {
           collapseWhitespace: true,
           decodeEntities: true,
           html5: true,
@@ -135,6 +142,18 @@ const minifyHTML = () =>
           minifyJS: true,
           removeComments: true,
         });
+        [
+          ...minifiedHTML.matchAll(
+            /<script type="application\/ld\+json">(?<json>.*?)<\/script>/gs,
+          ),
+        ].forEach(
+          (m) =>
+            (minifiedHTML = minifiedHTML.replace(
+              m.groups['json'],
+              JSON.stringify(JSON.parse(m.groups['json'])),
+            )),
+        );
+
         file.contents = Buffer.from(minifiedHTML);
       }
       callback(null, file);
