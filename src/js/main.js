@@ -201,7 +201,10 @@ const formatNumber = (number, allowFraction = false) => {
     .join('');
 };
 
-const updateFront = (allowDomesticFraction = false, allowForeignFraction = false) => {
+const updateFront = (
+  allowDomesticFraction = false,
+  allowForeignFraction = false,
+) => {
   const domesticValue = getFormValue(domestic);
   if (shouldUpdate(domestic)) {
     domestic.value = formatNumber(domesticValue, allowDomesticFraction);
