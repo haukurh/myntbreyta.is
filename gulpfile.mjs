@@ -18,7 +18,13 @@ const clean = (cb) => {
 };
 
 const staticFiles = (cb) => {
-  gulp.src('./src/**/*.ico', { encoding: false }).pipe(gulp.dest(distFolder));
+  gulp
+    .src('./src/**/*.ico', { encoding: false, base: 'src/' })
+    .pipe(revision())
+    .pipe(gulp.dest(distFolder));
+  gulp
+    .src('src/assets/favicon.ico', { encoding: false })
+    .pipe(gulp.dest(distFolder));
   gulp.src('./src/**/*.json').pipe(gulp.dest(distFolder));
   cb();
 };
@@ -45,7 +51,7 @@ const setStyleAsInline = () =>
     objectMode: true,
     transform(file, encoding, callback) {
       if (file.isBuffer()) {
-        const css = fs.readFileSync('src/css/app-shell.css');
+        const css = fs.readFileSync('src/assets/css/app-shell.css');
         let contents = file.contents.toString();
         contents = contents.replace('<style></style>', `<style>${css}</style>`);
         file.contents = Buffer.from(contents);
