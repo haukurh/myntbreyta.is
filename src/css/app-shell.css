@@ -61,6 +61,7 @@ header select {
 header select option,
 header select optgroup {
   font-size: initial;
+  color: initial;
 }
 
 .selector {
