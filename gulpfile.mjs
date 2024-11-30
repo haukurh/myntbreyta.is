@@ -42,11 +42,32 @@ const staticFiles = (cb) => {
     .pipe(revision())
     .pipe(gulp.dest(distFolder));
   gulp
+    .src('src/robots.txt', { encoding: false })
+    .pipe(replaceSiteUrl())
+    .pipe(gulp.dest(distFolder));
+  gulp
+    .src('src/sitemap.xml', { encoding: false })
+    .pipe(replaceSiteUrl())
+    .pipe(gulp.dest(distFolder));
+  gulp
     .src('src/assets/favicon.ico', { encoding: false })
     .pipe(gulp.dest(distFolder));
   gulp.src('./src/**/*.json').pipe(gulp.dest(distFolder));
   cb();
 };
+
+const replaceSiteUrl = () =>
+  new Transform({
+    objectMode: true,
+    transform(file, encoding, callback) {
+      if (file.isBuffer()) {
+        let contents = file.contents.toString();
+        contents = contents.replaceAll('MYNTBREYTA_SITE_URL', siteUrl);
+        file.contents = Buffer.from(contents);
+      }
+      callback(null, file);
+    },
+  });
 
 const revisionedFiles = {};
 

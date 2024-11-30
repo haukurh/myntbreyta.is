@@ -1,0 +1,3 @@
+User-agent: *
+
+Sitemap: MYNTBREYTA_SITE_URL/sitemap.xml
