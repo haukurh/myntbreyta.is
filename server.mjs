@@ -16,6 +16,8 @@ const requestListener = function (req, res) {
     '.json': 'application/json',
     '.js': 'application/javascript',
     '.css': 'text/css',
+    '.txt': 'text/plain',
+    '.xml': 'text/xml',
     '.html': 'text/html',
     '.ico': 'image/vnd.microsoft.icon',
   };
