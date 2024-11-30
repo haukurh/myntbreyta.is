@@ -10,6 +10,25 @@ import server from './server.mjs';
 
 const distFolder = 'dist/';
 
+const userEnv = {};
+
+if (fs.existsSync('.env')) {
+  const envFile = fs.readFileSync('.env');
+  console.log(envFile.toString());
+  envFile.toString().split('\n').filter(i => i !== '').forEach(entry => { const env = entry.split('=', 2).map(e => e.trim()); userEnv[env[0]] = env[1]; });
+}
+
+const env = {
+  ...process.env,
+  ...userEnv,
+};
+
+if (!('MYNTBREYTA_SITE_URL' in env)) {
+  throw new Error ('"MYNTBREYTA_SITE_URL" is not set');
+}
+
+const siteUrl = env.MYNTBREYTA_SITE_URL;
+
 let shouldMinify = true;
 
 const clean = (cb) => {
