@@ -12,12 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - noscript message #39
 - .env file support
 - robots.txt + sitemap.xml for SEO #37
-- schema.org markup about web app
+- schema.org markup about web appt
 
 ### Changed
 
 - Move css+js+ico in subdirectory 'assets'
 - Add revision hash to favicon
+- Set appropriate cache-control headers for txt + xml files
 
 ### Fixed
 
