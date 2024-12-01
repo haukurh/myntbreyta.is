@@ -29,6 +29,8 @@ jobs:
         run: yarn install
 
       - name: Build
+        env:
+          MYNTBREYTA_SITE_URL: ${{ vars.MYNTBREYTA_SITE_URL }}
         run: yarn build
 
       - name: Sync HTML files to the S3 bucket
