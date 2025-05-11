@@ -9,13 +9,16 @@
   "scripts": {
     "dev": "gulp default",
     "build": "gulp build",
-    "format": "prettier -w src/ gulpfile.mjs server.mjs"
+    "format": "prettier -w src/ gulpfile.mjs server.mjs",
+    "lint-css": "stylelint src/**/*.css"
   },
   "devDependencies": {
     "csso": "^5.0.5",
     "gulp": "^5.0.0",
     "html-minifier": "^4.0.0",
     "prettier": "^3.2.5",
+    "stylelint": "^16.19.1",
+    "stylelint-config-standard": "^38.0.0",
     "uglify-js": "^3.17.4"
   }
 }
