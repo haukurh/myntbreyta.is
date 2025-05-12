@@ -236,7 +236,7 @@ const css = () =>
     .pipe(gulp.dest(distFolder));
 
 const developmentServer = (cb) => {
-  const port = 8000;
+  const port = 3000;
   const host = '0.0.0.0';
   server.listen(port, host, () => {
     console.log(`Server is running on http://${host}:${port}`);
