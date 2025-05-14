@@ -43,7 +43,6 @@ header select {
   all: unset;
   padding: 0.3rem 1em 0.3rem 0.5rem;
   text-align: right;
-  text-align: -webkit-right;
   font-weight: bold;
   font-size: inherit;
   margin-right: -1em;
