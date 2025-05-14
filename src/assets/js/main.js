@@ -257,7 +257,7 @@ foreign.addEventListener('input', updateDomestic);
 fetch('/currency-rates.json')
   .then((response) => {
     const lastModified = response.headers.get('last-modified');
-    const el = document.getElementById('currencyDate');
+    const el = document.getElementById('currency-date');
     const modifiedAt = new Date(lastModified);
     el.innerText = new Intl.DateTimeFormat(['is-IS', 'en-GB'], {
       dateStyle: 'long',
