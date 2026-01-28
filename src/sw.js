@@ -12,34 +12,69 @@ const putInCache = async (request, response) => {
   }
 };
 
+const shouldLoadFromCache = (response) => {
+  if (response === null) {
+    console.debug('No response found in cache', response);
+    return false;
+  }
+
+  if (!(response.status >= 200 && response.status < 300)) {
+    console.debug('Non 2xx status, skipping cache', response);
+    return false;
+  }
+
+  const responseDate = response.headers.get('date');
+  const cacheControl = response.headers.get('cache-control');
+
+  if (cacheControl !== null && cacheControl.includes('no-cache')) {
+    console.debug('Cache control: no-cache', response);
+    return false;
+  }
+
+  if (responseDate !== null && cacheControl !== null) {
+    const documentDate = new Date(responseDate);
+    const match = cacheControl.match(/max-age=(\d+)/);
+    const maxAge = match === null ? 0 : Number(match[1]);
+    documentDate.setSeconds(documentDate.getSeconds() + maxAge);
+    if (new Date() < documentDate) {
+      console.debug('Is cache based on cache-control header + document date', response);
+      return true;
+    }
+  }
+
+  const expiresHeader = response.headers.get('expires');
+  if (expiresHeader !== null && new Date() < new Date(expiresHeader)) {
+    console.debug('Is cache based on expires header', response);
+    return true;
+  }
+
+  // Defaults to false, relaying on explicit cache control headers
+  console.debug('Cache should not be used', response);
+  return false;
+};
+
 const cacheFirst = async ({ request, preloadResponsePromise, fallbackUrl }) => {
   // First try to get the resource from the cache
   const cache = await caches.open(version);
   const responseFromCache = await cache.match(request, { ignoreSearch: true });
 
-  if (responseFromCache && ['default', 'force-cache'].includes(request.cache)) {
-    const expiresHeader = responseFromCache.headers.get('expires');
-    if (
-      expiresHeader === null ||
-      (expiresHeader !== null && new Date() < new Date(expiresHeader))
-    ) {
-      preloadResponsePromise
-        .then((response) => {
-          if (response) {
-            putInCache(request, response.clone());
-          } else {
-            fetch(request)
-              .then((response) => {
-                if (response) {
-                  putInCache(request, response.clone());
-                }
-              })
-              .catch(() => {});
-          }
-        })
-        .catch(() => {});
-      return responseFromCache;
-    }
+  if (['default', 'force-cache'].includes(request.cache) && shouldLoadFromCache(responseFromCache)) {
+    preloadResponsePromise
+      .then((response) => {
+        if (response) {
+          putInCache(request, response.clone());
+        } else {
+          fetch(request)
+            .then((response) => {
+              if (response) {
+                putInCache(request, response.clone());
+              }
+            })
+            .catch(() => {});
+        }
+      })
+      .catch(() => {});
+    return responseFromCache;
   }
 
   // Next try to use the preloaded response, if it's there

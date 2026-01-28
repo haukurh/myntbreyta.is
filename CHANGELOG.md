@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Cache logic in service worker
 - Lower cache TTL for html files
 
 ## [v0.2.0] - 2026-01-28
@@ -39,7 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - noscript message #39
 - .env file support
 - robots.txt + sitemap.xml for SEO #37
-- schema.org markup about web appt
+- schema.org markup about web app
 
 ### Changed
 
