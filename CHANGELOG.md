@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## In progress
 
+### Added
+
+- .editorconfig which confirms to prettier format
+
 ### Fixed
 
 - Cache logic in service worker
