@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## In progress
 
+### Fixed
+
+- Lower cache TTL for html files
+
 ## [v0.2.0] - 2026-01-28
 
 ### Added
@@ -157,7 +161,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v0.0.11] - 2024-04-16
 
-### Added 
+### Added
 
 - Have service worker honor 'expires' headers from origin
 - Create a custom cache store for each app version
