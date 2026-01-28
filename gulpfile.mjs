@@ -6,6 +6,8 @@ import fs from 'node:fs';
 import { Transform } from 'node:stream';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import sharp from 'sharp';
+import icoEndec from 'ico-endec';
 import server from './server.mjs';
 
 const distFolder = 'dist/';
@@ -45,10 +47,6 @@ const clean = (cb) => {
 
 const staticFiles = (cb) => {
   gulp
-    .src('./src/**/*.ico', { encoding: false, base: 'src/' })
-    .pipe(revision())
-    .pipe(gulp.dest(distFolder));
-  gulp
     .src('src/robots.txt', { encoding: false })
     .pipe(replaceSiteUrl())
     .pipe(gulp.dest(distFolder));
@@ -57,8 +55,35 @@ const staticFiles = (cb) => {
     .pipe(replaceSiteUrl())
     .pipe(gulp.dest(distFolder));
   gulp
-    .src('src/assets/favicon.ico', { encoding: false })
-    .pipe(gulp.dest(distFolder));
+    .src('src/assets/images/icon.svg', { encoding: false })
+    .pipe(convertToPng('apple-touch-icon.png', 180))
+    .pipe(revision())
+    .pipe(gulp.dest(distFolder + 'assets/images/'));
+  gulp
+    .src('src/assets/images/icon.svg', { encoding: false })
+    .pipe(convertToPng('icon-96x96.png', 96))
+    .pipe(revision())
+    .pipe(gulp.dest(distFolder + 'assets/images/'));
+  gulp
+    .src('src/assets/images/icon.svg', { encoding: false })
+    .pipe(convertToPng('icon-192x192.png', 192))
+    .pipe(revision())
+    .pipe(gulp.dest(distFolder + 'assets/images/'));
+  gulp
+    .src('src/assets/images/icon.svg', { encoding: false })
+    .pipe(convertToPng('icon-512x512.png', 512))
+    .pipe(revision())
+    .pipe(gulp.dest(distFolder + 'assets/images/'));
+  gulp
+    .src('src/assets/images/icon.svg', { encoding: false })
+    .pipe(convertToPng('icon.ico', 32))
+    .pipe(convertToIco())
+    .pipe(revision())
+    .pipe(gulp.dest(distFolder + 'assets/images/'));
+  gulp
+    .src('src/assets/images/icon.svg', { encoding: false })
+    .pipe(revision())
+    .pipe(gulp.dest(distFolder + 'assets/images/'));
   gulp.src('./src/**/*.json').pipe(gulp.dest(distFolder));
   cb();
 };
@@ -124,6 +149,40 @@ const revision = () =>
           hash.substring(0, 8) +
           ext;
         revisionedFiles[key] = file.relative;
+      }
+      callback(null, file);
+    },
+  });
+
+const convertToPng = (name, size) =>
+  new Transform({
+    objectMode: true,
+    transform(file, encoding, callback) {
+      if (!file.isBuffer()) {
+        callback(null, file);
+        return;
+      }
+      sharp(file.contents)
+        .resize(size)
+        .png({ compressionLevel: 8 })
+        .toBuffer()
+        .then((contents) => {
+          file.contents = contents;
+          file.path = path.dirname(file.path) + '/' + name;
+        })
+        .catch((err) => {
+          console.error(err);
+        })
+        .finally(() => callback(null, file));
+    },
+  });
+
+const convertToIco = (name, size) =>
+  new Transform({
+    objectMode: true,
+    transform(file, encoding, callback) {
+      if (file.isBuffer()) {
+        file.contents = icoEndec.encode([file.contents]);
       }
       callback(null, file);
     },
@@ -207,6 +266,13 @@ const serviceWorker = () =>
     .pipe(minifyJS())
     .pipe(gulp.dest(distFolder));
 
+const webmanifest = () =>
+  gulp
+    .src('src/**/app.webmanifest')
+    .pipe(revision())
+    .pipe(replaceRevisionFiles())
+    .pipe(gulp.dest(distFolder));
+
 const html = () =>
   gulp
     .src('src/**/*.html')
@@ -218,6 +284,7 @@ const errorPage = () =>
   gulp
     .src('src/error.html')
     .pipe(setStyleAsInline())
+    .pipe(replaceRevisionFiles())
     .pipe(minifyHTML())
     .pipe(gulp.dest(distFolder));
 
@@ -249,6 +316,7 @@ gulp.task(
   gulp.series(
     clean,
     gulp.parallel(staticFiles, serviceWorker, javascript, css),
+    webmanifest,
     html,
     errorPage,
   ),
@@ -261,7 +329,7 @@ export default (cb) => {
   gulp.watch(
     'src/**/*.{css,js,html}',
     { ignoreInitial: false },
-    gulp.series(css, javascript, serviceWorker, html, errorPage),
+    gulp.series(css, javascript, webmanifest, serviceWorker, html, errorPage),
   );
   developmentServer(() => {});
   cb();
