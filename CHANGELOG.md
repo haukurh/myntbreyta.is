@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## In progress
 
+## [v0.4.0] - 2026-01-28
+
+### Fixed
+
+- Fix check if response is available in cache
+
 ## [v0.3.0] - 2026-01-28
 
 ### Added

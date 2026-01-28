@@ -13,7 +13,7 @@ const putInCache = async (request, response) => {
 };
 
 const shouldLoadFromCache = (response) => {
-  if (response === null) {
+  if (response === undefined) {
     console.debug('No response found in cache', response);
     return false;
   }
