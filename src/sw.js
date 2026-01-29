@@ -37,7 +37,10 @@ const shouldLoadFromCache = (response) => {
     const maxAge = match === null ? 0 : Number(match[1]);
     documentDate.setSeconds(documentDate.getSeconds() + maxAge);
     if (new Date() < documentDate) {
-      console.debug('Is cache based on cache-control header + document date', response);
+      console.debug(
+        'Is cache based on cache-control header + document date',
+        response,
+      );
       return true;
     }
   }
@@ -58,7 +61,10 @@ const cacheFirst = async ({ request, preloadResponsePromise, fallbackUrl }) => {
   const cache = await caches.open(version);
   const responseFromCache = await cache.match(request, { ignoreSearch: true });
 
-  if (['default', 'force-cache'].includes(request.cache) && shouldLoadFromCache(responseFromCache)) {
+  if (
+    ['default', 'force-cache'].includes(request.cache) &&
+    shouldLoadFromCache(responseFromCache)
+  ) {
     preloadResponsePromise
       .then((response) => {
         if (response) {
