@@ -12,14 +12,9 @@ const putInCache = async (request, response) => {
   }
 };
 
-const shouldLoadFromCache = (response) => {
+const cacheIsFresh = (response) => {
   if (response === undefined) {
     console.debug('No response found in cache', response);
-    return false;
-  }
-
-  if (!(response.status >= 200 && response.status < 300)) {
-    console.debug('Non 2xx status, skipping cache', response);
     return false;
   }
 
@@ -56,31 +51,17 @@ const shouldLoadFromCache = (response) => {
   return false;
 };
 
+const requestAcceptsCache = (request) => {
+  return ['default', 'force-cache'].includes(request.cache);
+};
+
 const cacheFirst = async ({ request, preloadResponsePromise, fallbackUrl }) => {
   // First try to get the resource from the cache
   const cache = await caches.open(version);
-  const responseFromCache = await cache.match(request, { ignoreSearch: true });
+  const cachedResponse = await cache.match(request, { ignoreSearch: true });
 
-  if (
-    ['default', 'force-cache'].includes(request.cache) &&
-    shouldLoadFromCache(responseFromCache)
-  ) {
-    preloadResponsePromise
-      .then((response) => {
-        if (response) {
-          putInCache(request, response.clone());
-        } else {
-          fetch(request)
-            .then((response) => {
-              if (response) {
-                putInCache(request, response.clone());
-              }
-            })
-            .catch(() => {});
-        }
-      })
-      .catch(() => {});
-    return responseFromCache;
+  if (requestAcceptsCache(request) && cacheIsFresh(cachedResponse)) {
+    return cachedResponse;
   }
 
   // Next try to use the preloaded response, if it's there
@@ -99,9 +80,9 @@ const cacheFirst = async ({ request, preloadResponsePromise, fallbackUrl }) => {
     putInCache(request, responseFromNetwork.clone());
     return responseFromNetwork;
   } catch (error) {
-    if (responseFromCache) {
+    if (cachedResponse) {
       console.warn('Network error unable to fetch resource, using from cache');
-      return responseFromCache;
+      return cachedResponse;
     }
     return new Response('Network error happened', {
       status: 408,
