@@ -109,8 +109,8 @@ footer {
   border-style: solid;
   border-color: hsl(120deg 23.53% 96%);
   transition-duration: 200ms;
-  transition-property: border-bottom-color, border-top-color, border-right-color,
-    border-left-color;
+  transition-property:
+    border-bottom-color, border-top-color, border-right-color, border-left-color;
 }
 
 .currency:focus-within {
