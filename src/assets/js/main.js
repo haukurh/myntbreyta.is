@@ -248,11 +248,17 @@ const updateSelector = (currencies) => {
   return currencies;
 };
 
+const selectEverything = (e) => {
+  e.target.setSelectionRange(0, e.target.value.length);
+};
+
 selector.addEventListener('change', (e) => setSelected(e.target.value));
 domestic.addEventListener('change', updateForeign);
 domestic.addEventListener('input', updateForeign);
+domestic.addEventListener('focus', selectEverything);
 foreign.addEventListener('change', updateDomestic);
 foreign.addEventListener('input', updateDomestic);
+foreign.addEventListener('focus', selectEverything);
 
 fetch('/currency-rates.json')
   .then((response) => {

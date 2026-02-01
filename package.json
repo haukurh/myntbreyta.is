@@ -1,6 +1,6 @@
 {
   "name": "myntbreyta.is",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "A PWA that provides currency conversion with ISK as the base currency",
   "main": "index.js",
   "repository": "git@github.com:haukurh/myntbreyta.is.git",
