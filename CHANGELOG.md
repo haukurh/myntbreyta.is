@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## In progress
 
+### Changed
+
+- Update packages + project clean
+
+### Fixed
+
+- Deprecation warning in development server code
+
 ## [v0.6.0] - 2026-02-01
 
 ### Changed

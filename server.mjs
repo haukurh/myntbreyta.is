@@ -7,10 +7,7 @@ const started = new Date();
 started.setMinutes(started.getMinutes() + 1);
 
 const requestListener = function (req, res) {
-  const urlPath =
-    url.parse(req.url).pathname !== '/'
-      ? url.parse(req.url).pathname
-      : '/index.html';
+  const urlPath = req.url !== '/' ? req.url : '/index.html';
   const ext = path.extname(urlPath);
   const contentTypes = {
     '.json': 'application/json',
