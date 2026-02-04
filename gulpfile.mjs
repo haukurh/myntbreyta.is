@@ -269,6 +269,7 @@ const serviceWorker = () =>
 const webmanifest = () =>
   gulp
     .src('src/**/app.webmanifest')
+    .pipe(replaceSiteUrl())
     .pipe(revision())
     .pipe(replaceRevisionFiles())
     .pipe(gulp.dest(distFolder));
