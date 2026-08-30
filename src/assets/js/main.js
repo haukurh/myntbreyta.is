@@ -62,6 +62,7 @@ const popularList = [
   'CHF',
   'CZK',
   'THB',
+  'ALL',
 ];
 
 const currencyDescription = {
@@ -76,6 +77,7 @@ const currencyDescription = {
   CZK: 'króna, tékknesk',
   PLN: 'slot',
   THB: 'bat',
+  ALL: 'lek',
 };
 
 const db = {
