@@ -138,7 +138,7 @@ let rate = 1;
 let currencies = {};
 let currency = 'ISK';
 
-const setSelected = async (currencyCode) => {
+const setSelected = async (currencyCode, foreignValue = 1) => {
   if ((!currencyCode) in currencies) {
     console.warn('Unable to find selected currency, when selecting', {
       currencyCode,
@@ -155,7 +155,7 @@ const setSelected = async (currencyCode) => {
   document.getElementById('foreign-label-description').innerText =
     `(${currencyDescription[currency]})`;
   rate = currencies[currency];
-  foreign.value = 1;
+  foreign.value = foreignValue;
   updateDomestic();
 };
 
@@ -215,6 +215,10 @@ const updateFront = (
   if (shouldUpdate(foreign)) {
     foreign.value = formatNumber(foreignValue, allowForeignFraction);
   }
+  const newHash = '#' + getUserSelectedCurrency() + Number.parseInt(foreignValue);
+  if (window.location.hash !== newHash) {
+    history.pushState(null, "", newHash);
+  }
 };
 
 const updateForeign = () => {
@@ -231,7 +235,7 @@ const updateDomestic = () => {
   updateFront(false, true);
 };
 
-const updateSelector = (currencies) => {
+const updateSelector = () => {
   console.log('Running updateSelector');
   const current = getUserSelectedCurrency();
   const userSelectedCurrencies = getUserSelectedCurrencies();
@@ -243,11 +247,9 @@ const updateSelector = (currencies) => {
     option.innerText = currencyCode;
     if (currencyCode === current) {
       option.selected = true;
-      setSelected(current);
     }
     selector.appendChild(option);
   });
-  return currencies;
 };
 
 const selectEverything = (e) => {
@@ -262,6 +264,25 @@ foreign.addEventListener('change', updateDomestic);
 foreign.addEventListener('input', updateDomestic);
 foreign.addEventListener('focus', selectEverything);
 
+const updateFromHash = () => {
+  const hash = window.location.hash.slice(1).toUpperCase();
+  const hashCurrency = hash.slice(0, 3);
+  const hashValue = Number.parseInt(hash.slice(3));
+  if (popularList.includes(hashCurrency)) {
+    setSelected(hashCurrency, hashValue > 1 ? hashValue : 1);
+    const valueString = hashValue > 1 ? hashValue : '';
+    const cleanHash = `${hashCurrency}${valueString}`;
+    if (hash !== cleanHash) {
+      history.replaceState(null, "", `#${cleanHash}`);
+    }
+  } else {
+    const current = getUserSelectedCurrency();
+    setSelected(current);
+  }
+}
+
+window.addEventListener("hashchange", updateFromHash);
+
 fetch('/currency-rates.json')
   .then((response) => {
     const lastModified = response.headers.get('last-modified');
@@ -274,6 +295,7 @@ fetch('/currency-rates.json')
   })
   .then((response) => {
     currencies = response;
+    updateFromHash();
     updateSelector();
     updateForeign();
   });
