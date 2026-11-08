@@ -7,9 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## In progress
 
+## [v0.7.0] - 2026-11-08
+
 ### Added
 
 - Support for specifying currency type + value via URL hash
+- Redirect user from error page tried to use currency code without hash
 
 ## [v0.6.1] - 2026-08-30
 

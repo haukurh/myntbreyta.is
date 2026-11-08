@@ -37,6 +37,30 @@
       if (window.location.pathname === '/') {
         document.querySelector('main a').style.display = 'none';
       }
+
+      const popularList = [
+        'EUR',
+        'USD',
+        'GBP',
+        'SEK',
+        'DKK',
+        'NOK',
+        'AUD',
+        'PLN',
+        'CHF',
+        'CZK',
+        'THB',
+        'ALL',
+      ];
+      const path = window.location.pathname.slice(1).toUpperCase();
+      const currency = path.slice(0,3);
+      const pathInt = Number.parseInt(path.slice(3));
+      const currencyValue = pathInt > 1 ? pathInt : 1;
+      if (popularList.includes(currency)) {
+        const newUrl = `/#${currency}${currencyValue}`;
+        console.log(`Invalid URL but matched possible currency coded URL, redirecting to ${newUrl}`);
+        window.location.href = newUrl;
+      }
     </script>
   </body>
 </html>
