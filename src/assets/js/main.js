@@ -215,9 +215,10 @@ const updateFront = (
   if (shouldUpdate(foreign)) {
     foreign.value = formatNumber(foreignValue, allowForeignFraction);
   }
-  const newHash = '#' + getUserSelectedCurrency() + Number.parseInt(foreignValue);
+  const newHash =
+    '#' + getUserSelectedCurrency() + Number.parseInt(foreignValue);
   if (window.location.hash !== newHash) {
-    history.pushState(null, "", newHash);
+    history.pushState(null, '', newHash);
   }
 };
 
@@ -273,15 +274,15 @@ const updateFromHash = () => {
     const valueString = hashValue > 1 ? hashValue : '';
     const cleanHash = `${hashCurrency}${valueString}`;
     if (hash !== cleanHash) {
-      history.replaceState(null, "", `#${cleanHash}`);
+      history.replaceState(null, '', `#${cleanHash}`);
     }
   } else {
     const current = getUserSelectedCurrency();
     setSelected(current);
   }
-}
+};
 
-window.addEventListener("hashchange", updateFromHash);
+window.addEventListener('hashchange', updateFromHash);
 
 fetch('/currency-rates.json')
   .then((response) => {

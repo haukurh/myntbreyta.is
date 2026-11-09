@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## In progress
 
+## [v0.7.1] - 2026-11-09
+
+### Added
+
+- Error response for failed fetch via service worker
+
+### Fixed
+
+- Service worker install event so base html + currency rates are stored in cache
+
 ## [v0.7.0] - 2026-11-08
 
 ### Added
