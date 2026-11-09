@@ -128,6 +128,15 @@ self.addEventListener('fetch', (event) => {
     cacheFirst({
       request: event.request,
       preloadResponsePromise: event.preloadResponse,
-    }).catch((e) => console.warn('Something went really wrong', { error: e })),
+    }).catch((e) => {
+      console.warn('Something went really wrong', { error: e });
+      return new Response(
+        'Ekki næst að sækja gögn frá myntbreyta.is og viðkomandi gögn ekki aðgengileg í flýtiminni',
+        {
+          status: 503,
+          headers: { 'Content-Type': 'text/plain' },
+        },
+      );
+    }),
   );
 });
