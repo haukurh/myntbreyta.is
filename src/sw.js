@@ -55,7 +55,7 @@ const requestAcceptsCache = (request) => {
   return ['default', 'force-cache'].includes(request.cache);
 };
 
-const cacheFirst = async ({ request, preloadResponsePromise, fallbackUrl }) => {
+const cacheFirst = async ({ request, preloadResponsePromise }) => {
   // First try to get the resource from the cache
   const cache = await caches.open(version);
   const cachedResponse = await cache.match(request, { ignoreSearch: true });
