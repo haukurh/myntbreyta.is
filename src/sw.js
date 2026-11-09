@@ -115,8 +115,11 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    clearCaches(),
-    addResourcesToCache(['/', '/currency-rates.json']),
+    (async () => {
+      await clearCaches();
+      await addResourcesToCache(['/', '/currency-rates.json']);
+      await self.skipWaiting();
+    })(),
   );
 });
 
