@@ -93,7 +93,6 @@ const cacheFirst = async ({ request, preloadResponsePromise }) => {
 
 const enableNavigationPreload = async () => {
   if (self.registration.navigationPreload) {
-    // Enable navigation preloads!
     await self.registration.navigationPreload.enable();
   }
 };
@@ -115,11 +114,11 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    (async () => {
-      await clearCaches();
-      await addResourcesToCache(['/', '/currency-rates.json']);
-      await self.skipWaiting();
-    })(),
+    Promise.all([
+      clearCaches(),
+      addResourcesToCache(['/', '/currency-rates.json', '/error.html']),
+      self.skipWaiting(),
+    ]),
   );
 });
 
