@@ -52,6 +52,10 @@ header select {
   z-index: 1;
 }
 
+header select:focus-visible {
+  outline: #fff solid 1px;
+}
+
 .selector::after {
   content: '\25bc';
   display: block;

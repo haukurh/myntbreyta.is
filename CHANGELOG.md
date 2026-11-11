@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## In progress
 
+## [v0.8.0] - 2026-11-11
+
+### Added
+
+- Outline to currency selector when focus is via keyboard
+
 ### Changed
 
 - Make steps during service worker install run in parallel
