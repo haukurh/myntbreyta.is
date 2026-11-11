@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Make steps during service worker install run in parallel
 
+### Fixed
+
+- Use cache straight away if navigator is not online
+
 ## [v0.7.1] - 2026-11-09
 
 ### Added

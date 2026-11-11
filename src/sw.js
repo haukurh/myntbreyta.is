@@ -72,24 +72,27 @@ const cacheFirst = async ({ request, preloadResponsePromise }) => {
     return preloadResponse;
   }
 
-  // Next try to get the resource from the network
-  try {
-    const responseFromNetwork = await fetch(request);
-    // response may be used only once
-    // we need to save clone to put one copy in cache
-    // and serve second one
-    putInCache(request, responseFromNetwork.clone());
-    return responseFromNetwork;
-  } catch (error) {
+  // If browser is offline, then only serve cache or throw error
+  if (!self.navigator.onLine) {
     if (cachedResponse) {
-      console.warn('Network error unable to fetch resource, using from cache');
+      console.debug('Browser is offline, falling back to cache', cachedResponse);
       return cachedResponse;
     }
-    return new Response('Network error happened', {
-      status: 408,
-      headers: { 'Content-Type': 'text/plain' },
-    });
+    throw new Error('Browser is offline');
   }
+
+  return await fetch(request)
+    .then((response) => {
+      putInCache(request, response.clone());
+      return response;
+    })
+    .catch((error) => {
+      if (cachedResponse) {
+        console.debug('Failed fetching from network, falling back to cache', cachedResponse);
+        return cachedResponse;
+      }
+      throw error;
+    });
 };
 
 const enableNavigationPreload = async () => {
