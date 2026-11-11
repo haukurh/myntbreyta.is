@@ -65,20 +65,23 @@ const cacheFirst = async ({ request, preloadResponsePromise }) => {
     return cachedResponse;
   }
 
+  // If browser is offline, then only serve cache or throw error
+  if (!self.navigator.onLine) {
+    if (cachedResponse) {
+      console.debug(
+        'Browser is offline, falling back to cache',
+        cachedResponse,
+      );
+      return cachedResponse;
+    }
+    throw new Error('Browser is offline');
+  }
+
   // Next try to use the preloaded response, if it's there
   const preloadResponse = await preloadResponsePromise.catch(() => {});
   if (preloadResponse) {
     putInCache(request, preloadResponse.clone());
     return preloadResponse;
-  }
-
-  // If browser is offline, then only serve cache or throw error
-  if (!self.navigator.onLine) {
-    if (cachedResponse) {
-      console.debug('Browser is offline, falling back to cache', cachedResponse);
-      return cachedResponse;
-    }
-    throw new Error('Browser is offline');
   }
 
   return await fetch(request)
@@ -88,7 +91,10 @@ const cacheFirst = async ({ request, preloadResponsePromise }) => {
     })
     .catch((error) => {
       if (cachedResponse) {
-        console.debug('Failed fetching from network, falling back to cache', cachedResponse);
+        console.debug(
+          'Failed fetching from network, falling back to cache',
+          cachedResponse,
+        );
         return cachedResponse;
       }
       throw error;

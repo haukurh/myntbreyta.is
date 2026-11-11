@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## In progress
 
+## [v0.8.1] - 2026-11-11
+
+### Changed
+
+- Move navigator.onLine check before trying to use preloaded response in service worker
+
 ## [v0.8.0] - 2026-11-11
 
 ### Added
