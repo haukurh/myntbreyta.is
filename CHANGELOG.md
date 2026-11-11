@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Make steps during service worker install run in parallel
+- Use error.html from cache in service worker if request fails
 
 ### Fixed
 
