@@ -14,7 +14,7 @@ const putInCache = async (request, response) => {
 
 const cacheIsFresh = (response) => {
   if (response === undefined) {
-    console.debug('No response found in cache', response);
+    console.debug('No response found in cache');
     return false;
   }
 
@@ -61,6 +61,7 @@ const cacheFirst = async ({ request, preloadResponsePromise }) => {
   const cachedResponse = await cache.match(request, { ignoreSearch: true });
 
   if (requestAcceptsCache(request) && cacheIsFresh(cachedResponse)) {
+    console.debug('Serving from fresh cache', cachedResponse);
     return cachedResponse;
   }
 
