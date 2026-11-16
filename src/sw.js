@@ -77,7 +77,9 @@ const cacheFirst = async ({ request }) => {
     throw new Error('Browser is offline');
   }
 
-  return await fetch(request)
+  return await fetch(request, {
+    signal: AbortSignal.timeout(!cachedResponse ? 5000 : 1000),
+  })
     .then((response) => {
       console.debug('Fetching resource over network', context);
       putInCache(request, response.clone());
@@ -113,18 +115,22 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('install', (event) => {
   event.waitUntil(
     Promise.all([
-      caches.open(version).then(cache => cache.addAll([
-        '/',
-        '/currency-rates.json',
-        '/error.html',
-        '/assets/css/app-shell.css',
-        '/assets/js/main.js',
-        '/assets/app.webmanifest',
-        '/assets/images/icon.svg',
-        '/assets/images/icon.ico',
-        '/assets/images/icon-96x96.png',
-        '/assets/images/apple-touch-icon.png',
-      ])),
+      caches
+        .open(version)
+        .then((cache) =>
+          cache.addAll([
+            '/',
+            '/currency-rates.json',
+            '/error.html',
+            '/assets/css/app-shell.css',
+            '/assets/js/main.js',
+            '/assets/app.webmanifest',
+            '/assets/images/icon.svg',
+            '/assets/images/icon.ico',
+            '/assets/images/icon-96x96.png',
+            '/assets/images/apple-touch-icon.png',
+          ]),
+        ),
       self.skipWaiting(),
     ]),
   );

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## In progress
 
+## [v0.10.2] - 2026-11-16
+
+### Fixed
+
+- Add sensible timeout to network requests
+
 ## [v0.10.1] - 2026-11-16
 
 ### Fixed
