@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## In progress
 
+### Changed
+
+- Add all static assets to cache during service worker install
+
 ## [v0.9.0] - 2026-11-16
 
 ### Changed

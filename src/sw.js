@@ -112,7 +112,18 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('install', (event) => {
   event.waitUntil(
     Promise.all([
-      addResourcesToCache(['/', '/currency-rates.json', '/error.html']),
+      addResourcesToCache([
+        '/',
+        '/currency-rates.json',
+        '/error.html',
+        '/assets/css/app-shell.css',
+        '/assets/js/main.js',
+        '/assets/app.webmanifest',
+        '/assets/images/icon.svg',
+        '/assets/images/favicon-96x96.png',
+        '/assets/images/icon.ico',
+        '/assets/images/apple-touch-icon.png',
+      ]),
       self.skipWaiting(),
     ]),
   );

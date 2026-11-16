@@ -263,6 +263,7 @@ const serviceWorker = () =>
   gulp
     .src('./src/sw.js')
     .pipe(updatePackageVersion())
+    .pipe(replaceRevisionFiles())
     .pipe(minifyJS())
     .pipe(gulp.dest(distFolder));
 
@@ -316,8 +317,9 @@ gulp.task(
   'build',
   gulp.series(
     clean,
-    gulp.parallel(staticFiles, serviceWorker, javascript, css),
+    gulp.parallel(staticFiles, javascript, css),
     webmanifest,
+    serviceWorker,
     html,
     errorPage,
   ),
