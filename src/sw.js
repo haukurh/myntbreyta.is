@@ -1,10 +1,5 @@
 const version = 'RELEASE_VERSION';
 
-const addResourcesToCache = async (resources) => {
-  const cache = await caches.open(version);
-  await cache.addAll(resources);
-};
-
 const putInCache = async (request, response) => {
   if (request.method === 'GET' && response.ok && !response.redirected) {
     const cache = await caches.open(version);
@@ -118,7 +113,7 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('install', (event) => {
   event.waitUntil(
     Promise.all([
-      addResourcesToCache([
+      caches.open(version).then(cache => cache.addAll([
         '/',
         '/currency-rates.json',
         '/error.html',
@@ -126,10 +121,10 @@ self.addEventListener('install', (event) => {
         '/assets/js/main.js',
         '/assets/app.webmanifest',
         '/assets/images/icon.svg',
-        '/assets/images/icon-96x96.png',
         '/assets/images/icon.ico',
+        '/assets/images/icon-96x96.png',
         '/assets/images/apple-touch-icon.png',
-      ]),
+      ])),
       self.skipWaiting(),
     ]),
   );
