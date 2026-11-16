@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## In progress
 
+## [v0.10.1] - 2026-11-16
+
 ### Fixed
 
-- Refernece to icon-96x96 in html + service worker
+- Reference to icon-96x96 in html + service worker
 
 ## [v0.10.0] - 2026-11-16
 
