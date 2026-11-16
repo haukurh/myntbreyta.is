@@ -55,7 +55,7 @@ const requestAcceptsCache = (request) => {
   return ['default', 'force-cache'].includes(request.cache);
 };
 
-const cacheFirst = async ({ request, preloadResponsePromise }) => {
+const cacheFirst = async ({ request }) => {
   // First try to get the resource from the cache
   const cache = await caches.open(version);
   const cachedResponse = await cache.match(request, { ignoreSearch: true });
@@ -77,13 +77,6 @@ const cacheFirst = async ({ request, preloadResponsePromise }) => {
     throw new Error('Browser is offline');
   }
 
-  // Next try to use the preloaded response, if it's there
-  const preloadResponse = await preloadResponsePromise.catch(() => {});
-  if (preloadResponse) {
-    putInCache(request, preloadResponse.clone());
-    return preloadResponse;
-  }
-
   return await fetch(request)
     .then((response) => {
       putInCache(request, response.clone());
@@ -101,12 +94,6 @@ const cacheFirst = async ({ request, preloadResponsePromise }) => {
     });
 };
 
-const enableNavigationPreload = async () => {
-  if (self.registration.navigationPreload) {
-    await self.registration.navigationPreload.enable();
-  }
-};
-
 const clearCaches = async () => {
   console.log('clearing all caches');
   await caches.keys().then((cacheNames) => {
@@ -119,13 +106,12 @@ const clearCaches = async () => {
 };
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(enableNavigationPreload());
+  event.waitUntil(clearCaches());
 });
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     Promise.all([
-      clearCaches(),
       addResourcesToCache(['/', '/currency-rates.json', '/error.html']),
       self.skipWaiting(),
     ]),
@@ -136,7 +122,6 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     cacheFirst({
       request: event.request,
-      preloadResponsePromise: event.preloadResponse,
     }).catch(async (e) => {
       console.warn('Something went really wrong', { error: e });
       const cache = await self.caches.open(version);

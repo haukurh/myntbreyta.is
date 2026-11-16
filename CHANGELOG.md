@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## In progress
 
+## [v0.9.0] - 2026-11-16
+
+### Changed
+
+- Remove use of navigationPreload in service worker due to issues with safari
+
 ## [v0.8.1] - 2026-11-11
 
 ### Changed
