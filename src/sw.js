@@ -126,7 +126,7 @@ self.addEventListener('install', (event) => {
         '/assets/js/main.js',
         '/assets/app.webmanifest',
         '/assets/images/icon.svg',
-        '/assets/images/favicon-96x96.png',
+        '/assets/images/icon-96x96.png',
         '/assets/images/icon.ico',
         '/assets/images/apple-touch-icon.png',
       ]),
