@@ -7,10 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## In progress
 
+## [v0.10.0] - 2026-11-16
+
 ### Changed
 
 - Add all static assets to cache during service worker install
 - start_url of webmanifest from absolute url to relative
+- More debug logging to network requests in service worker
 
 ## [v0.9.0] - 2026-11-16
 

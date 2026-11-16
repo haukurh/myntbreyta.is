@@ -59,19 +59,24 @@ const cacheFirst = async ({ request }) => {
   // First try to get the resource from the cache
   const cache = await caches.open(version);
   const cachedResponse = await cache.match(request, { ignoreSearch: true });
+  const context = {
+    request,
+    cachedResponse,
+    version,
+  };
+  if (!cachedResponse) {
+    console.debug('No cache for request', context);
+  }
 
   if (requestAcceptsCache(request) && cacheIsFresh(cachedResponse)) {
-    console.debug('Serving from fresh cache', cachedResponse);
+    console.debug('Serving from fresh cache', context);
     return cachedResponse;
   }
 
   // If browser is offline, then only serve cache or throw error
   if (!self.navigator.onLine) {
     if (cachedResponse) {
-      console.debug(
-        'Browser is offline, falling back to cache',
-        cachedResponse,
-      );
+      console.debug('Browser is offline, falling back to cache', context);
       return cachedResponse;
     }
     throw new Error('Browser is offline');
@@ -79,6 +84,7 @@ const cacheFirst = async ({ request }) => {
 
   return await fetch(request)
     .then((response) => {
+      console.debug('Fetching resource over network', context);
       putInCache(request, response.clone());
       return response;
     })
@@ -86,7 +92,7 @@ const cacheFirst = async ({ request }) => {
       if (cachedResponse) {
         console.debug(
           'Failed fetching from network, falling back to cache',
-          cachedResponse,
+          context,
         );
         return cachedResponse;
       }
@@ -130,6 +136,7 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  console.debug('Service worker intercepting request', event.request);
   event.respondWith(
     cacheFirst({
       request: event.request,
