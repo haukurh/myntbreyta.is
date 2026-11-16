@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## In progress
 
+### Changed
+
+- aria-label to icelandic from english for currency selector
+
 ## [v0.10.2] - 2026-11-16
 
 ### Fixed
