@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Use history.replaceState instead pushState for URL hash update
+- Change package manager from yarn to npm
 
 ## [v0.10.3] - 2026-11-17
 

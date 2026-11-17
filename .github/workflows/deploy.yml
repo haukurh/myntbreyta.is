@@ -26,12 +26,12 @@ jobs:
           node-version: 'lts/*'
 
       - name: Install dependencies
-        run: yarn install
+        run: npm install
 
       - name: Build
         env:
           MYNTBREYTA_SITE_URL: ${{ vars.MYNTBREYTA_SITE_URL }}
-        run: yarn build
+        run: npm run build
 
       - name: Sync HTML files to the S3 bucket
         run: aws s3 sync dist/ s3://${{ vars.AWS_S3_BUCKET }}/ --exclude=* --include=*.html --include=*.txt --include=*.xml --cache-control="public,max-age=60,s-maxage=31536000"
