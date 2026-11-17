@@ -10,7 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - aria-label to icelandic from english for currency selector
-- start_url of webmanifest back to absolute url fron relative
+- start_url of webmanifest back to absolute url from relative
+- Update node version and checkout action in GitHub workflow
 
 ## [v0.10.2] - 2026-11-16
 
