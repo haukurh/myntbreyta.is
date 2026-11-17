@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## In progress
 
+### Changed
+
+- Use history.replaceState instead pushState for URL hash update
+
 ## [v0.10.3] - 2026-11-17
 
 ### Changed

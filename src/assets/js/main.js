@@ -218,7 +218,7 @@ const updateFront = (
   const newHash =
     '#' + getUserSelectedCurrency() + Number.parseInt(foreignValue);
   if (window.location.hash !== newHash) {
-    history.pushState(null, '', newHash);
+    history.replaceState(null, '', newHash);
   }
 };
 
